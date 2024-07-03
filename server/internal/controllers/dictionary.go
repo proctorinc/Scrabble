@@ -29,5 +29,5 @@ func (c *DictionaryController) GetDefinition(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "Game state retrieved", "result": definition})
+	ctx.JSON(http.StatusOK, gin.H{"message": "Word definition retrieved", "result": definition})
 }

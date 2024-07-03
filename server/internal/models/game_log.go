@@ -53,7 +53,7 @@ func CreateJoinGameLog(gameId string, playerId string) error {
 	return nil
 }
 
-func CreatePlayTilesLog(gameId string, playerId string, wordPlayed WordPlayed) error {
+func CreatePlayTilesLog(gameId string, playerId string, word string, points int) error {
 	db := db.GetDB()
 	
 	log := GameLog{
@@ -62,8 +62,8 @@ func CreatePlayTilesLog(gameId string, playerId string, wordPlayed WordPlayed) e
 			Id: playerId,
 		},
 		Action: PLAY_TILES,
-		WordPlayed: &wordPlayed.Word,
-		PointsScored: &wordPlayed.Points,
+		WordPlayed: &word,
+		PointsScored: &points,
 	}
 
 	_, err := db.Exec(`

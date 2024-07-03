@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"log"
 	"proctorinc/scrabble/internal/models"
 )
 
@@ -147,46 +148,55 @@ func (s *GameService) JoinGame(userId string, gameId string) (*models.Game, erro
 }
 
 func (s *GameService) PlayTiles(gameId string, cells []models.Cell) (*models.Game, error) {
-	// dictionaryService := NewDictionaryService()
+	dictionaryService := NewDictionaryService()
 	game, err := models.GetGameById(gameId)
 
 	if err != nil {
 		return nil, err
 	}
 
-	// if err := game.Board.PutTilesOnBoard(cells); err != nil {
-	// 	return nil, err
-	// }
+	if err := game.Board.PutTilesOnBoard(cells); err != nil {
+		return nil, err
+	}
 
-	// if err := game.Board.ValidateTilePlacement(); err != nil {
-	// 	return nil, err
-	// }
+	if err := game.Board.ValidateTilePlacement(); err != nil {
+		return nil, err
+	}
 
-	// playedWords, err := game.Board.GetWordsPlayed()
+	playedWords, err := game.Board.GetWordsPlayed()
 
-	// if err != nil {
-	// 	return nil, err
-	// }
+	if err != nil {
+		return nil, err
+	}
 
-	// if err := dictionaryService.ValidateWords(playedWords); err != nil {
-	// 	return nil, err
-	// }
+	log.Println("PLAYED WORDS")
+	log.Println(playedWords)
 
-	// points := game.Board.ScorePlayedWords()
+	if len(playedWords) == 0 {
+		return nil, fmt.Errorf("No valid words were played")
+	}
 
-	// game.PlayerTurn.ScorePoints(points)
+	if err := dictionaryService.ValidateWords(playedWords); err != nil {
+		return nil, err
+	}
 
-	// // Current player draw new tiles
-	// game.PlayerTurn.DrawTiles(&game.TileBag)
+	points := game.Board.ScorePlayedWords()
 
-	// if err = game.PlayerTurn.Save(); err != nil {
-	// 	return nil, err
-	// }
+	game.Board.ConfirmInPlayTiles()
 
-	// // Log player turn
-	// if err = models.CreatePlayTilesLog(gameId, game.PlayerTurn.Id, *playedWords[0]); err != nil {
-	// 	return nil, err
-	// }
+	game.PlayerTurn.ScorePoints(points)
+
+	// Current player draw new tiles
+	game.PlayerTurn.DrawTiles(&game.TileBag)
+
+	if err = game.PlayerTurn.Save(); err != nil {
+		return nil, err
+	}
+
+	// Log player turn
+	if err = models.CreatePlayTilesLog(gameId, game.PlayerTurn.Id, playedWords[0], points); err != nil {
+		return nil, err
+	}
 
 	if err = game.IncrementTurn(); err != nil {
 		return nil, err

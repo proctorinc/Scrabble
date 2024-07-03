@@ -53,7 +53,7 @@ func (gc *GameController) StartGame(ctx *gin.Context) {
 	userId := ctx.GetString("user_id")
 	gameService := services.NewGameService()
 
-	gameId, err := gameService.CreateNewGame(userId, isLocalParam == "true")
+	game, err := gameService.CreateNewGame(userId, isLocalParam == "true")
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{ "message": "Error creating new game", "error": err.Error() })
@@ -61,7 +61,7 @@ func (gc *GameController) StartGame(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{ "message": "New game has been created", "game_id": gameId })
+	ctx.JSON(http.StatusOK, gin.H{ "message": "New game has been created", "game_id": game.Id })
 }
 
 func (gc *GameController) JoinGame(ctx *gin.Context) {
@@ -78,7 +78,7 @@ func (gc *GameController) JoinGame(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{ "message": "Joined game successfully", "gameId": game.Id })
+	ctx.JSON(http.StatusOK, gin.H{ "message": "Joined game successfully", "game_id": game.Id })
 }
 
 func (gc *GameController) QuitGame(ctx *gin.Context) {

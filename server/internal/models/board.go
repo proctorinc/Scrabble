@@ -1,6 +1,7 @@
 package models
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 )
@@ -47,51 +48,121 @@ func NewBoard() Board {
 	}
 }
 
-func (b *Board) ValidatePlayedTiles(cells []Cell) ([]*Cell, error) {
-	return nil, fmt.Errorf("Invalid word of tiles")
-	
-	return nil, fmt.Errorf("Invalid placement of tiles")
-}
-
-func (b *Board) PlayTiles(cells []*Cell) (*WordPlayed, error) {
-	boardCopy := b.Cells
-
+func (b *Board) PutTilesOnBoard(cells []Cell) error {
 	for _, cell := range cells {
 		if (cell.Tile != nil &&
-			cell.Row <= len(boardCopy) - 1 &&
-			cell.Col <= len(boardCopy[0]) - 1) {
-
-			// Set tile to no longer be in play
-			cell.Tile.InPlay = false
+			cell.Row <= len(b.Cells) - 1 &&
+			cell.Col <= len(b.Cells[0]) - 1) {
 
 			// Place tiles on board
-			boardCopy[cell.Row][cell.Col].Tile = cell.Tile
+			b.Cells[cell.Row][cell.Col].Tile = cell.Tile
 		} else {
 			log.Printf("row: %d, col: %d", cell.Row, cell.Col)
-			return nil, fmt.Errorf("invalid tile placement supplied")
+			return fmt.Errorf("invalid tile placement supplied")
 		}
 	}
 
-	// TODO: validate tiles are validly placed, err if not
-	wordPlayed, err := validateWordPlayed(boardCopy)
-
-	if err != nil {
-		return nil, err
-	}
-
-	// If everything is valid, copy to board
-	b.Cells = boardCopy
-
-	return wordPlayed, nil
+	return nil
 }
 
-func validateWordPlayed(board [][]Cell) (*WordPlayed, error) {
+func (b *Board) ValidateTilePlacement() error {
+	log.Println("ValidateTilePlacement is not implemented yet")
+
+	return nil
+}
+
+func (b *Board) GetWordsPlayed() ([]string, error) {
+	words := []string{}
+	cells := b.getCellsWithInPlayTiles();
+
+	log.Println("CELLS")
+	log.Println(cells)
 	
+	// Check if word is horizontal or vertical
+	isHorizontal := cells[0].Row == cells[1].Row
+
+	// Get main word
+	if isHorizontal {
+		log.Println("word is horizontal!")
+		mainWordCells := b.getHorizontalWordCells(cells[0])
+		log.Println(mainWordCells)
+		words = append(words, getStringFromCells(mainWordCells))
+	} else {
+		log.Println("word is vertical!")
+		mainWordCells := b.getVerticalWordCells(cells[0])
+		log.Println(mainWordCells)
+		words = append(words, getStringFromCells(mainWordCells))
+	}
+
+	return words, nil
+}
+
+func (b *Board) getHorizontalWordCells(startingCell Cell) []Cell {
+	currentCell := startingCell
+	cells := []Cell{}
 	
-	return &WordPlayed{
-		Word: "NOT IMPLEMENTED",
-		Points: -1,
-	}, nil
+	for currentCell.Tile != nil {
+		cells = append(cells, currentCell)
+		currentCell = b.Cells[currentCell.Row][currentCell.Col + 1]
+	}
+
+	return cells
+}
+
+func (b *Board) getVerticalWordCells(startingCell Cell) []Cell {
+	currentCell := startingCell
+	cells := []Cell{}
+	
+	for currentCell.Tile != nil {
+		cells = append(cells, currentCell)
+		currentCell = b.Cells[currentCell.Row + 1][currentCell.Col]
+	}
+
+	return cells
+}
+
+func getStringFromCells(cells []Cell) string {
+	var stringBuffer bytes.Buffer
+
+	for _, cell := range cells {
+		stringBuffer.WriteString(cell.Tile.Letter)
+	}
+
+	log.Printf("STRING BUFFER: %s", stringBuffer.String())
+	return stringBuffer.String()
+}
+
+func (b *Board) ConfirmInPlayTiles() error {
+	// Set all tiles that are in play to false
+	for _, row := range b.Cells {
+		for _, cell := range row {
+			if cell.Tile != nil && cell.Tile.InPlay {
+				cell.Tile.InPlay = false
+			}
+		}
+	}
+
+	return nil
+}
+
+func (b *Board) ScorePlayedWords() int {
+	score := 0
+
+	return score
+}
+
+func (b *Board) getCellsWithInPlayTiles() []Cell {
+	cells := []Cell{}
+
+	for _, row := range b.Cells {
+		for _, cell := range row {
+			if cell.Tile != nil && cell.Tile.InPlay {
+				cells = append(cells, cell)
+			}
+		}
+	}
+
+	return cells
 }
 
 func generateScrabbleBoard() [][]Cell {
