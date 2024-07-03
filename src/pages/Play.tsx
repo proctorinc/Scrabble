@@ -89,19 +89,24 @@ const Play = () => {
         <div className="absolute left-3 flex flex-col items-center">
           <span className="text-2xl">{players[0].score}</span>
           <span className="text-sm">
-            {players[0].user.username}
-            {players[0].user.id === currentUser.id ? " (you)" : ""}
+            {state.is_local ? players[0].alias : players[0].user.username}
+            {!state.is_local &&
+              (players[0].user.id === currentUser.id ? " (you)" : "")}
           </span>
         </div>
         <div>
-          {isMyTurn && <div>Your turn</div>}
-          {!isMyTurn && <div>{playerTurn.user.username}'s turn</div>}
+          {state.is_local && isMyTurn && <div>{playerTurn.alias}'s turn</div>}
+          {!state.is_local && isMyTurn && <div>Your turn</div>}
+          {!state.is_local && !isMyTurn && (
+            <div>{playerTurn.user.username}'s turn</div>
+          )}
         </div>
         <div className="absolute right-3 flex flex-col items-center">
           <span className="text-2xl">{players[1].score}</span>
           <span className="text-sm">
-            {players[1].user.username}
-            {players[1].user.id === currentUser.id ? " (you)" : ""}
+            {state.is_local ? players[1].alias : players[1].user.username}
+            {!state.is_local &&
+              (players[1].user.id === currentUser.id ? " (you)" : "")}
           </span>
         </div>
       </div>
@@ -164,16 +169,19 @@ const Play = () => {
           </button>
         </div>
       </div>
-      {isMyTurn && (
-        <button
-          disabled={!isValidLetterPlacement}
-          onClick={() => playTiles(validCells)}
-          className="group hover:text-white hover:border-emerald-600 flex gap-0.5 bg-emerald-400 h-fit items-center hover:bg-emerald-600 rounded-lg px-4 py-1 text-lg border-2 border-emerald-700 text-emerald-700 font-bold shadow-md disabled:bg-gray-200 disabled:text-gray-500 disabled:border-gray-500"
-        >
-          Play
-          <IconPlayerPlayFilled className="w-6 aspect-square" size={15} />
-        </button>
-      )}
+      <div className="flex gap-2 items-center">
+        <div>Tiles Left: {state.tile_bag.tiles.length}</div>
+        {isMyTurn && (
+          <button
+            disabled={!isValidLetterPlacement}
+            onClick={() => playTiles(validCells)}
+            className="group hover:text-white hover:border-emerald-600 flex gap-0.5 bg-emerald-400 h-fit items-center hover:bg-emerald-600 rounded-lg px-4 py-1 text-lg border-2 border-emerald-700 text-emerald-700 font-bold shadow-md disabled:bg-gray-200 disabled:text-gray-500 disabled:border-gray-500"
+          >
+            Play
+            <IconPlayerPlayFilled className="w-6 aspect-square" size={15} />
+          </button>
+        )}
+      </div>
       <Dialog
         open={tradeInModalOpen}
         onClose={() => setTradeInModalOpen(false)}

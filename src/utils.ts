@@ -179,7 +179,6 @@ export function somethingCheckHorizontalWord(
 
     // Check right edge
     if (right.col < board[0].length - 1) {
-      // word.push(right.tile);
       const nextRight = board[right.row][right.col + 1];
 
       if (nextRight.tile !== null) {

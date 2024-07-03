@@ -16,6 +16,9 @@ export type GameState = {
   board: {
     cells: BoardCells;
   };
+  tile_bag: {
+    tiles: Tile[];
+  };
   players: GamePlayer[];
   player_turn: GamePlayer;
   current_player: GamePlayer;
@@ -44,6 +47,7 @@ export type Tile = {
 
 export type GamePlayer = {
   id: string;
+  alias: string;
   user: User;
   score: number;
   tiles: Tile[];

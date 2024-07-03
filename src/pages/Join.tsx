@@ -16,8 +16,8 @@ const Join = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.gameId !== undefined) {
-          navigate(`/play/${data.gameId}`);
+        if (data.game_id !== undefined) {
+          navigate(`/play/${data.game_id}`);
         } else {
           navigate("/");
           console.error("Failed to join new game");
