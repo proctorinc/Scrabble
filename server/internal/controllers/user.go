@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"log"
 	"net/http"
 	"proctorinc/scrabble/internal/models"
 
@@ -18,8 +17,6 @@ func (uc *UserController) GetMe(ctx *gin.Context) {
 
 	// Check if request has auth token
 	if tokenErr != nil || userErr != nil {
-		log.Println("User not found")
-
 		// If no token, create new user with token
 		newUser, err := models.CreateRandomUser()
 

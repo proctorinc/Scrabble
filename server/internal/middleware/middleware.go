@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"log"
 	"net/http"
 	"proctorinc/scrabble/internal/models"
 
@@ -63,8 +62,6 @@ func ActiveTurnRequired() gin.HandlerFunc {
 			ctx.Abort()
 			return
 		}
-
-		log.Printf("player turn: %s vs user: %s", game.PlayerTurn.User.Id, userId)
 
 		// Verify http only cookies
 		if game.PlayerTurn.User.Id != userId {

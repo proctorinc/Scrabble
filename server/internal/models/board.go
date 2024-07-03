@@ -72,7 +72,6 @@ func (b *Board) PutTilesOnBoard(cells []Cell) error {
 			// Place tiles on board
 			b.Cells[cell.Row][cell.Col].Tile = cell.Tile
 		} else {
-			log.Printf("row: %d, col: %d", cell.Row, cell.Col)
 			return fmt.Errorf("invalid tile placement supplied")
 		}
 	}
@@ -123,14 +122,11 @@ func (b *Board) getVerticalPlayedWords(cells []Cell) AllPlayedWords {
 
 			if len(cells) > 1 {
 				word := getPlayedWordFromCells(cells)
-				log.Printf("ADDING %d to total points", word.Points)
 				played.TotalPoints += word.Points
 				played.Words = append(played.Words, word)
 			}
 		}
 	}
-
-	log.Printf("TOTAL POINTS: %d", played.TotalPoints)
 
 	return played
 }
@@ -151,14 +147,11 @@ func (b *Board) getHorizontalPlayedWords(cells []Cell) AllPlayedWords {
 			
 			if len(cells) > 1 {
 				word := getPlayedWordFromCells(cells)
-				log.Printf("ADDING %d to total points", word.Points)
 				played.TotalPoints += word.Points
 				played.Words = append(played.Words, word)
 			}
 		}
 	}
-
-	log.Printf("TOTAL POINTS: %d", played.TotalPoints)
 
 	return played
 }
@@ -172,7 +165,6 @@ func getPlayedWordFromCells(cells []Cell) PlayedWord {
 	for _, cell := range cells {
 		stringBuffer.WriteString(cell.Tile.Letter)
 		points += calculateCellPoints(cell)
-		log.Printf("SCORED: %d\n", points)
 
 		if cell.Tile != nil && cell.Tile.InPlay && cell.Bonus == DOUBLE_WORD {
 			doubleWordBonus += 1
@@ -183,13 +175,11 @@ func getPlayedWordFromCells(cells []Cell) PlayedWord {
 
 	// Check for double word bonuses
 	if doubleWordBonus > 0 {
-		log.Println("DOUBLE WORD!")
 		points *= (2 * doubleWordBonus)
 	}
 	
 	// Check for triple word bonuses
 	if tripleWordBonus > 0 {
-		log.Println("TRIPLE WORD!")
 		points *= (3 * tripleWordBonus)
 	}
 
@@ -200,10 +190,6 @@ func getPlayedWordFromCells(cells []Cell) PlayedWord {
 }
 
 func calculateCellPoints(cell Cell) int {
-	log.Println("###")
-	log.Println(cell)
-	log.Println(cell.Tile)
-
 	if cell.Tile != nil {
 		if cell.Tile.InPlay && cell.Bonus == DOUBLE_LETTER {
 			return cell.Tile.Value * 2
@@ -213,8 +199,6 @@ func calculateCellPoints(cell Cell) int {
 			return cell.Tile.Value
 		}
 	}
-
-	log.Println("POINTS ERR, tile either nil or not in play")
 
 	return 0
 }

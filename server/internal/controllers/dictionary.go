@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"log"
 	"net/http"
 	"proctorinc/scrabble/internal/services"
 
@@ -23,7 +22,6 @@ func (c *DictionaryController) GetDefinition(ctx *gin.Context) {
 	definition, err := dictService.GetDefinition(word)
 
 	if err != nil {
-		log.Printf("ERROR: %v", err)
 		ctx.JSON(http.StatusNotFound, gin.H{ "message": "Error retrieving definition", "error": err.Error() })
 		ctx.Abort()
 		return

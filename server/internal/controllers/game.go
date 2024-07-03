@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"log"
 	"net/http"
 	"proctorinc/scrabble/internal/models"
 	"proctorinc/scrabble/internal/services"
@@ -23,7 +22,6 @@ func (gc *GameController) GetGame(ctx *gin.Context) {
 	game, err := gameService.GetGameState(userId, gameId)
 
 	if err != nil {
-		log.Printf("ERROR: %v", err)
 		ctx.JSON(http.StatusNotFound, gin.H{ "message": "Error retrieving game", "error": err.Error() })
 		ctx.Abort()
 		return
@@ -39,7 +37,6 @@ func (gc *GameController) GetGameLogs(ctx *gin.Context) {
 	logs, err := gameService.GetGameLogs(gameId)
 
 	if err != nil {
-		log.Printf("ERROR: %v", err)
 		ctx.JSON(http.StatusNotFound, gin.H{ "message": "Error retrieving game logs", "error": err.Error() })
 		ctx.Abort()
 		return
@@ -72,7 +69,6 @@ func (gc *GameController) JoinGame(ctx *gin.Context) {
 	game, err := gameService.JoinGame(userId, gameId)
 
 	if err != nil {
-		log.Printf("ERROR: %v", err)
 		ctx.JSON(http.StatusNotFound, gin.H{ "message": "Error retrieving game", "error": err.Error() })
 		ctx.Abort()
 		return

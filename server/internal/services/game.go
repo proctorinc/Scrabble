@@ -2,7 +2,6 @@ package services
 
 import (
 	"fmt"
-	"log"
 	"proctorinc/scrabble/internal/models"
 )
 
@@ -197,13 +196,8 @@ func (s *GameService) PlayTiles(gameId string, cells []models.Cell) (*models.Gam
 
 	game.PlayerTurn.ScorePoints(played.TotalPoints)
 
-	log.Printf("Player's new score: %d", game.PlayerTurn.Score)
-
-	log.Printf("BEFORE: Tiles in bag: %d", game.TileBag.GetTileCount())
 	// Current player draw new tiles
 	game.PlayerTurn.DrawTiles(&game.TileBag)
-
-	log.Printf("AFTER: Tiles in bag: %d", game.TileBag.GetTileCount())
 
 	if err = game.PlayerTurn.Save(); err != nil {
 		return nil, err

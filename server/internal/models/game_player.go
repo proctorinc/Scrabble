@@ -3,7 +3,6 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"proctorinc/scrabble/internal/db"
 
 	"github.com/google/uuid"
@@ -18,17 +17,11 @@ type GamePlayer struct {
 }
 
 func (p *GamePlayer) ScorePoints(points int) {
-	log.Printf("Scoring! %d points", points)
-	log.Printf("Before: %d", p.Score)
 	p.Score += points
-	log.Printf("After: %d", p.Score)
 }
 
 func (p *GamePlayer) DrawTiles(b *TileBag) {
-	log.Printf("initial tiles: %d", len(p.Tiles))
 	numToDraw := 7 - len(p.Tiles)
-	log.Printf("tiles drawn: %d", numToDraw)
-
 	p.Tiles = append(p.Tiles, b.TakeTiles(numToDraw)...)
 }
 
