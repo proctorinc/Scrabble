@@ -31,6 +31,7 @@ const initializeTables string = `
 
 	CREATE TABLE IF NOT EXISTS game_players (
 		id VARCHAR(255) PRIMARY KEY,
+		alias VARCHAR(255) NOT NULL,
 		player_id VARCHAR(255) REFERENCES users (user_id) NOT NULL,
 		game_id VARCHAR(255) REFERENCES games (game_id) NOT NULL,
 		score INTEGER NOT NULL DEFAULT 0,

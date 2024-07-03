@@ -73,7 +73,7 @@ func InitializeDevData() error {
 		PlayerTurn: &player,
 		Board: NewBoard(),
 		TileBag: NewTileBag(),
-		Players: []*GamePlayer{&player},
+		Players: []GamePlayer{player},
 		IsLocal: true,
 	}
 

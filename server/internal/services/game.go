@@ -19,6 +19,7 @@ func (s *GameService) GetGameState(userId string, gameId string) (*models.Game, 
 		return nil, err
 	}
 
+	// Skip error for when user first joins and there is no current player
 	player, _ := models.GetGamePlayer(userId, gameId)
 
 	game.CurrentPlayer = player
@@ -49,7 +50,7 @@ func (s *GameService) CreateNewGame(userId string, isLocal bool) (*models.Game, 
 		return nil, err
 	}
 
-	player, err := models.CreateGamePlayer(game.Id, *user)
+	player, err := models.CreateGamePlayer(game.Id, *user, "Player 1")
 
 	if err != nil {
 		return nil, err
@@ -63,7 +64,7 @@ func (s *GameService) CreateNewGame(userId string, isLocal bool) (*models.Game, 
 
 	// If local, start the game
 	if game.IsLocal {
-		player, err := models.CreateGamePlayer(game.Id, *user)
+		player, err := models.CreateGamePlayer(game.Id, *user, "Player 2")
 
 		if err != nil {
 			return nil, err
@@ -119,7 +120,7 @@ func (s *GameService) JoinGame(userId string, gameId string) (*models.Game, erro
 
 	// Check if game is accepting users
 	if game.IsWaitingForPlayer() {
-		player, err := models.CreateGamePlayer(game.Id, *user)
+		player, err := models.CreateGamePlayer(game.Id, *user, "Player 2")
 
 		if err != nil {
 			return nil, err
@@ -144,12 +145,14 @@ func (s *GameService) JoinGame(userId string, gameId string) (*models.Game, erro
 
 	}
 	
-	return nil, fmt.Errorf("Game is no longer accepting players to join")
+	return nil, fmt.Errorf("game is no longer accepting players to join")
 }
 
 func (s *GameService) PlayTiles(gameId string, cells []models.Cell) (*models.Game, error) {
 	dictionaryService := NewDictionaryService()
 	game, err := models.GetGameById(gameId)
+
+	log.Println(game)
 
 	if err != nil {
 		return nil, err
@@ -163,28 +166,25 @@ func (s *GameService) PlayTiles(gameId string, cells []models.Cell) (*models.Gam
 		return nil, err
 	}
 
-	playedWords, err := game.Board.GetWordsPlayed()
+	played, err := game.Board.GetPlayedWords()
 
 	if err != nil {
 		return nil, err
 	}
 
-	log.Println("PLAYED WORDS")
-	log.Println(playedWords)
-
-	if len(playedWords) == 0 {
-		return nil, fmt.Errorf("No valid words were played")
+	if len(played.Words) == 0 {
+		return nil, fmt.Errorf("no valid words were played")
 	}
 
-	if err := dictionaryService.ValidateWords(playedWords); err != nil {
+	if err := dictionaryService.ValidateWords(played.Words); err != nil {
 		return nil, err
 	}
 
-	points := game.Board.ScorePlayedWords()
-
 	game.Board.ConfirmInPlayTiles()
 
-	game.PlayerTurn.ScorePoints(points)
+	game.PlayerTurn.ScorePoints(played.TotalPoints)
+
+	log.Printf("Player's new score: %d", game.PlayerTurn.Score)
 
 	// Current player draw new tiles
 	game.PlayerTurn.DrawTiles(&game.TileBag)
@@ -194,7 +194,7 @@ func (s *GameService) PlayTiles(gameId string, cells []models.Cell) (*models.Gam
 	}
 
 	// Log player turn
-	if err = models.CreatePlayTilesLog(gameId, game.PlayerTurn.Id, playedWords[0], points); err != nil {
+	if err = models.CreatePlayTilesLog(gameId, game.PlayerTurn.Id, played.Words[0].Word, played.TotalPoints); err != nil {
 		return nil, err
 	}
 

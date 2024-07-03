@@ -182,7 +182,7 @@ func GetGameLogsByGameId(gameId string) ([]*GameLog, error) {
 	logs := []*GameLog{}
 
 	rows, err := db.Query(`
-		SELECT game_logs.id, game_logs.player_id, user_id, username, score, tiles, action, points_scored, word_played, num_tiles_traded, date
+		SELECT game_logs.id, game_logs.player_id, user_id, username, alias, score, tiles, action, points_scored, word_played, num_tiles_traded, date
 		FROM game_logs
 		JOIN game_players ON game_players.id = game_logs.player_id
 		JOIN users ON users.user_id = game_players.player_id
@@ -205,7 +205,7 @@ func GetGameLogsByGameId(gameId string) ([]*GameLog, error) {
 
 		var tiles []uint8
 
-		if err := rows.Scan(&log.Id, &log.Player.Id, &log.Player.User.Id, &log.Player.User.Username, &log.Player.Score,
+		if err := rows.Scan(&log.Id, &log.Player.Id, &log.Player.User.Id, &log.Player.User.Username, &log.Player.Alias, &log.Player.Score,
 			&tiles, &log.Action, &log.PointsScored, &log.WordPlayed, &log.NumTilesTraded, &log.Date); err != nil {
 			
 			return nil, err

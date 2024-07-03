@@ -14,7 +14,7 @@ type Game struct {
 	IsLocal bool `json:"is_local"`
 	Board Board `json:"board"`
 	TileBag TileBag `json:"tile_bag"`
-	Players []*GamePlayer `json:"players"`
+	Players []GamePlayer `json:"players"`
 	CurrentPlayer *GamePlayer `json:"current_player"`
 	PlayerTurn *GamePlayer `json:"player_turn"`
 }
@@ -66,14 +66,15 @@ func GetGameById(id string) (*Game, error) {
 	}
 	var board []uint8
 	var tileBag []uint8
+	var playerTurnTiles []uint8
 
 	err := db.QueryRow(`
-		SELECT games.game_id, status, is_local, board, tile_bag, player_turn_id, user_id, username
+		SELECT games.game_id, status, is_local, board, tile_bag, player_turn_id, alias, score, tiles, user_id, username
 		FROM games
 		JOIN game_players ON games.player_turn_id = game_players.id
 		JOIN users ON game_players.player_id = users.user_id
 		WHERE games.game_id = $1 LIMIT 1`,
-		id).Scan(&game.Id, &game.Status, &game.IsLocal, &board, &tileBag, &game.PlayerTurn.Id, &game.PlayerTurn.User.Id, &game.PlayerTurn.User.Username)
+		id).Scan(&game.Id, &game.Status, &game.IsLocal, &board, &tileBag, &game.PlayerTurn.Id, &game.PlayerTurn.Alias, &game.PlayerTurn.Score, &playerTurnTiles, &game.PlayerTurn.User.Id, &game.PlayerTurn.User.Username)
 
 	if err != nil {
 		return nil, err
@@ -86,6 +87,12 @@ func GetGameById(id string) (*Game, error) {
 	}
 
 	err = json.Unmarshal(tileBag, &game.TileBag)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(playerTurnTiles, &game.PlayerTurn.Tiles)
 
 	if err != nil {
 		return nil, err
@@ -153,7 +160,7 @@ func (g *Game) Quit() {
 }
 
 func (g *Game) AddPlayer(player *GamePlayer) {
-	g.Players = append(g.Players, player)
+	g.Players = append(g.Players, *player)
 
 	if g.PlayerTurn == nil {
 		g.PlayerTurn = player
@@ -164,7 +171,7 @@ func (g *Game) IncrementTurn() error {
 	for _, player := range g.Players {
 		// Set the turn to the player who's turn it currently is not
 		if player.Id != g.PlayerTurn.Id {
-			g.PlayerTurn = player
+			g.PlayerTurn = &player
 			
 			return nil
 		}

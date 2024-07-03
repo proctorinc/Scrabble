@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
+	"proctorinc/scrabble/internal/models"
 )
 
 type DictionaryService struct {}
@@ -47,8 +47,6 @@ func (s *DictionaryService) GetDefinition(word string) ([]DefinitionResponse, er
 		return nil, err
 	}
 
-	log.Println(string(body))
-
 	var definitionResponse []DefinitionResponse
 	err = json.Unmarshal(body, &definitionResponse)
 
@@ -59,10 +57,10 @@ func (s *DictionaryService) GetDefinition(word string) ([]DefinitionResponse, er
 	return definitionResponse, nil
 }
 
-func (s *DictionaryService) ValidateWords(words []string) error {
+func (s *DictionaryService) ValidateWords(words []models.PlayedWord) error {
 	for _, word := range words {
-		if _, err := s.GetDefinition(word); err != nil {
-			return fmt.Errorf("word [%s] is invalid", word)
+		if _, err := s.GetDefinition(word.Word); err != nil {
+			return fmt.Errorf("word [%s] is invalid", word.Word)
 		}
 	}
 
