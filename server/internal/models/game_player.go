@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"proctorinc/scrabble/internal/db"
 
@@ -24,7 +25,9 @@ func (p *GamePlayer) ScorePoints(points int) {
 }
 
 func (p *GamePlayer) DrawTiles(b *TileBag) {
+	log.Printf("initial tiles: %d", len(p.Tiles))
 	numToDraw := 7 - len(p.Tiles)
+	log.Printf("tiles drawn: %d", numToDraw)
 
 	p.Tiles = append(p.Tiles, b.TakeTiles(numToDraw)...)
 }
@@ -138,6 +141,51 @@ func GetGamePlayer(userId string, gameId string) (*GamePlayer, error) {
 	}
 
 	return player, nil
+}
+
+func (p *GamePlayer) RemoveTiles(tiles []Tile) error {
+	for _, tile := range tiles {
+		if err := p.removeTile(tile); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (p *GamePlayer) HasTiles(tiles []Tile) bool {
+	for _, tile := range tiles {
+		if !p.hasTile(tile) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (p *GamePlayer) removeTile(tile Tile) error {
+	for index, playerTile := range p.Tiles {
+		if playerTile.Id == tile.Id {
+			p.Tiles = remove(p.Tiles, index)
+			return nil
+		}
+	}
+
+	return fmt.Errorf("unable to remove tile. Tile not found")
+}
+
+func (p *GamePlayer) hasTile(tile Tile) bool {
+	for _, playerTile := range p.Tiles {
+		if playerTile.Id == tile.Id {
+			return true
+		}
+	}
+
+	return false
+}
+
+func remove(tiles []Tile, index int) []Tile {
+	return append(tiles[:index], tiles[index+1:]...)
 }
 
 func newGamePlayer(user User, alias string) *GamePlayer {

@@ -70,27 +70,7 @@ func NewTileBag() TileBag {
 	return bag
 }
 
-func generateScrabbleTiles() []Tile {
-	tiles := make([]Tile, 100)
-	index := 0
-
-	for letter, count := range scrabbleTileCount {
-		for range count {
-			tiles[index] = Tile{
-				Id: uuid.NewString(),
-				Letter: letter,
-				Value: scrabbleTileValues[letter],
-			}
-			index++
-		}
-	}
-
-	return tiles
-}
-
-
-
-func (b TileBag) DisplayTileCount() {
+func (b *TileBag) DisplayTileCount() {
 	letters := make([]string, len(scrabbleTileValues))
 
 	i := 0
@@ -108,7 +88,7 @@ func (b TileBag) DisplayTileCount() {
 	fmt.Println()
 }
 
-func (b TileBag) tileCount(letter string) int {
+func (b *TileBag) tileCount(letter string) int {
 	count := 0
 
 	for _, tile := range b.Tiles {
@@ -121,6 +101,7 @@ func (b TileBag) tileCount(letter string) int {
 }
 
 func (b *TileBag) TakeTile() Tile {
+	// TODO: Need check for when tiles run out
 	// Pop next tile from bag
 	tile := b.Tiles[0]
 	tiles := b.Tiles[1:]
@@ -141,11 +122,11 @@ func (b *TileBag) TakeTiles(count int) []Tile {
 	return takenTiles
 }
 
-func (b TileBag) GetTileCount() int {
+func (b *TileBag) GetTileCount() int {
 	return len(b.Tiles)
 }
 
-func (b TileBag) ReturnTiles(letters []string) {
+func (b *TileBag) ReturnTiles(letters []string) {
 	for _, letter := range letters {
 		b.returnTile(letter)
 	}
@@ -154,14 +135,14 @@ func (b TileBag) ReturnTiles(letters []string) {
 	b.shuffleTiles()
 }
 
-func (b TileBag) GetTile(letter string) Tile {
+func (b *TileBag) GetTile(letter string) Tile {
 	return Tile{
 		Letter: letter,
 		Value: scrabbleTileValues[letter],
 	}
 }
 
-func (b TileBag) returnTile(letter string) {
+func (b *TileBag) returnTile(letter string) {
 	tile := b.GetTile(letter)
 	b.Tiles = append(b.Tiles, tile)
 }
@@ -174,4 +155,22 @@ func ShuffleTiles(tiles *[]Tile) {
 	rand.Shuffle(len(*tiles), func(i, j int) {
 		(*tiles)[i], (*tiles)[j] = (*tiles)[j], (*tiles)[i]
 	})
+}
+
+func generateScrabbleTiles() []Tile {
+	tiles := make([]Tile, 100)
+	index := 0
+
+	for letter, count := range scrabbleTileCount {
+		for range count {
+			tiles[index] = Tile{
+				Id: uuid.NewString(),
+				Letter: letter,
+				Value: scrabbleTileValues[letter],
+			}
+			index++
+		}
+	}
+
+	return tiles
 }

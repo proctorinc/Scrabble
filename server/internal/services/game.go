@@ -150,12 +150,21 @@ func (s *GameService) JoinGame(userId string, gameId string) (*models.Game, erro
 
 func (s *GameService) PlayTiles(gameId string, cells []models.Cell) (*models.Game, error) {
 	dictionaryService := NewDictionaryService()
+	
 	game, err := models.GetGameById(gameId)
-
-	log.Println(game)
 
 	if err != nil {
 		return nil, err
+	}
+	
+	tiles, err := getTilesFromCells(cells)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !game.PlayerTurn.HasTiles(tiles) {
+		return nil, fmt.Errorf("invalid tiles. User does not have all tiles played")
 	}
 
 	if err := game.Board.PutTilesOnBoard(cells); err != nil {
@@ -182,12 +191,19 @@ func (s *GameService) PlayTiles(gameId string, cells []models.Cell) (*models.Gam
 
 	game.Board.ConfirmInPlayTiles()
 
+	if err := game.PlayerTurn.RemoveTiles(tiles); err != nil {
+		return nil, err
+	}
+
 	game.PlayerTurn.ScorePoints(played.TotalPoints)
 
 	log.Printf("Player's new score: %d", game.PlayerTurn.Score)
 
+	log.Printf("BEFORE: Tiles in bag: %d", game.TileBag.GetTileCount())
 	// Current player draw new tiles
 	game.PlayerTurn.DrawTiles(&game.TileBag)
+
+	log.Printf("AFTER: Tiles in bag: %d", game.TileBag.GetTileCount())
 
 	if err = game.PlayerTurn.Save(); err != nil {
 		return nil, err
@@ -254,4 +270,18 @@ func (s *GameService) SkipTurn(gameId string) (*models.Game, error) {
 	game.Save()
 
 	return game, nil
+}
+
+func getTilesFromCells(cells []models.Cell) ([]models.Tile, error) {
+	tiles := []models.Tile{}
+
+	for _, cell := range cells {
+		if cell.Tile != nil {
+			tiles = append(tiles, *cell.Tile)
+		} else {
+			return nil, fmt.Errorf("invalid cell. No tile on cell")
+		}
+	}
+
+	return tiles, nil
 }

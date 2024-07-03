@@ -238,7 +238,7 @@ func (b *Board) getHorizontalWordCells(startingCell Cell) []Cell {
 	currentCell = startingCell
 
 	// Get left side
-	for currentCell.Tile != nil && currentCell.Col + 1 > 0 {
+	for currentCell.Tile != nil && currentCell.Col - 1 >= 0 {
 		currentCell = b.Cells[currentCell.Row][currentCell.Col - 1]
 
 		if currentCell.Tile != nil {
@@ -268,7 +268,7 @@ func (b *Board) getVerticalWordCells(startingCell Cell) []Cell {
 	currentCell = startingCell
 
 	// Get bottom side
-	for currentCell.Tile != nil && currentCell.Row - 1 > 0 {
+	for currentCell.Tile != nil && currentCell.Row - 1 >= 0 {
 		currentCell = b.Cells[currentCell.Row - 1][currentCell.Col]
 
 		if currentCell.Tile != nil {
