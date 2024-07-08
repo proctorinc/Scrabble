@@ -215,7 +215,7 @@ func (s *GameService) PlayTiles(gameId string, cells []models.Cell) (*models.Gam
 	return game.Save()
 }
 
-func (s *GameService) SwapTiles(gameId string, tiles []models.Tile) (*models.Game, error) {
+func (s *GameService) SwapTiles(gameId string, tileIds []string) (*models.Game, error) {
 	game, err := models.GetGameById(gameId)
 
 	if err != nil {
@@ -223,22 +223,35 @@ func (s *GameService) SwapTiles(gameId string, tiles []models.Tile) (*models.Gam
 	}
 
 	// Confirm user has all the tiles
+	tiles, err := game.PlayerTurn.GetTilesById(tileIds)
+
+	if err != nil {
+		return nil, err
+	}
 
 	// Remove tiles from the user
+	game.PlayerTurn.RemoveTiles(tiles)
 
 	// Add tiles back into the tile bag
+	game.TileBag.ReturnTiles(tiles)
 
-	// Save the game
+	game.PlayerTurn.DrawTiles(&game.TileBag)
 
-	// Log player turn
+	if err = game.PlayerTurn.Save(); err != nil {
+		return nil, err
+	}
+
 	err = models.CreateTradeTilesLog(gameId, game.PlayerTurn.Id, len(tiles))
 
 	if err != nil {
 		return nil, err
 	}
 
-	// Return the game
-	return nil, fmt.Errorf("swap tiles functionality not implemented yet")
+	if err = game.IncrementTurn(); err != nil {
+		return nil, err
+	}
+
+	return game.Save()
 }
 
 func (s *GameService) SkipTurn(gameId string) (*models.Game, error) {

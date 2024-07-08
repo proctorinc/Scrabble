@@ -156,6 +156,30 @@ func (p *GamePlayer) HasTiles(tiles []Tile) bool {
 	return true
 }
 
+func (p *GamePlayer) getTileById(id string) (*Tile, error) {
+	for _, tile := range p.Tiles {
+		if tile.Id == id {
+			return &tile, nil
+		}
+	}
+
+	return nil, fmt.Errorf("invalid tile id: user does not have tile")
+} 
+
+func (p *GamePlayer) GetTilesById(ids []string) ([]Tile, error) {
+	var tiles []Tile
+	
+	for _, id := range ids {
+		tile, err := p.getTileById(id)
+		if err != nil {
+			return nil, err
+		}
+		tiles = append(tiles, *tile)
+	}
+
+	return tiles, nil
+} 
+
 func (p *GamePlayer) removeTile(tile Tile) error {
 	for index, playerTile := range p.Tiles {
 		if playerTile.Id == tile.Id {

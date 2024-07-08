@@ -126,9 +126,9 @@ func (b *TileBag) GetTileCount() int {
 	return len(b.Tiles)
 }
 
-func (b *TileBag) ReturnTiles(letters []string) {
-	for _, letter := range letters {
-		b.returnTile(letter)
+func (b *TileBag) ReturnTiles(tiles []Tile) {
+	for _, tile := range tiles {
+		b.returnTile(tile.Letter)
 	}
 
 	// Shuffle tiles to randomize next tile drawn

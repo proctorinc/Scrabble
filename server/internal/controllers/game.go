@@ -14,6 +14,10 @@ type PlayTilesRequestBody struct {
 	Cells []models.Cell `json:"cells"`
 }
 
+type SwapTilesRequestBody struct {
+	TileIds []string `json:"tiles"`
+}
+
 func (gc *GameController) GetGame(ctx *gin.Context) {
 	gameId := ctx.Param("id")
 	userId := ctx.GetString("user_id")
@@ -115,10 +119,18 @@ func (gc *GameController) PlayTiles(ctx *gin.Context) {
 }
 
 func (gc *GameController) SwapTiles(ctx *gin.Context) {
-	var tiles = []models.Tile{}
 	gameId := ctx.Param("id")
 	gameService := services.NewGameService()
-	game, err := gameService.SwapTiles(gameId, tiles)
+
+	var body SwapTilesRequestBody
+
+	if err := ctx.ShouldBindBodyWithJSON(&body); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{ "message": "Invalid request body", "error": err.Error() })
+		ctx.Abort()
+		return
+	}
+
+	game, err := gameService.SwapTiles(gameId, body.TileIds)
 
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{ "message": "Error swapping tiles", "error": err.Error() })
