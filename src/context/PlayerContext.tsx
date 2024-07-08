@@ -18,6 +18,7 @@ type PlayerContext = {
   returnTile: (tile: Tile) => void;
   returnTiles: (tiles: Tile[]) => void;
   changeTileOrder: (tileToMove: Tile, index: number) => void;
+  swapTiles: (tileIds: string[]) => void;
 };
 
 const PlayerContext = createContext<PlayerContext | null>(null);
@@ -34,11 +35,26 @@ export const PlayerContextProvider: FC<Props> = ({ children }) => {
 
   const isMyTurn = currentUser.id === playerTurn.user.id;
 
+  function swapTiles(tileIds: string[]) {
+    fetch(`http://localhost:8080/v1/game/${state.id}/turn/swap`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ tiles: tileIds }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Swap Response:", data);
+      });
+  }
+
   function shuffleTiles() {
     setCurrentPlayer((prev) => {
       return {
-        user: prev.user,
-        score: prev.score,
+        ...prev,
         tiles: shuffle<Tile>(prev.tiles),
       };
     });
@@ -47,8 +63,7 @@ export const PlayerContextProvider: FC<Props> = ({ children }) => {
   function playTile(tile: Tile) {
     setCurrentPlayer((prev) => {
       return {
-        user: prev.user,
-        score: prev.score,
+        ...prev,
         tiles: prev.tiles.filter((aTile) => tile.id !== aTile.id),
       };
     });
@@ -98,6 +113,7 @@ export const PlayerContextProvider: FC<Props> = ({ children }) => {
     returnTile,
     returnTiles,
     changeTileOrder,
+    swapTiles,
   };
 
   return (

@@ -13,13 +13,11 @@ import {
   IconCopy,
   IconPlayerPlayFilled,
   IconReplace,
-  IconX,
 } from "@tabler/icons-react";
 import { copyToClipboard } from "../utils";
 import { useState } from "react";
-import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
-import Tile from "../components/Tile";
 import Logs from "../components/game_logs/Logs";
+import TradeTilesModal from "../components/player/TradeTilesModal";
 
 const Play = () => {
   const currentUser = useUser();
@@ -121,7 +119,7 @@ const Play = () => {
             <IconCancel className="group-hover:text-white w-6 aspect-square" />
           </button>
           <button
-            disabled={!isMyTurn}
+            // disabled={!isMyTurn}
             onClick={() => setTradeInModalOpen(true)}
             className="group h-fit flex flex-col text-xs items-center hover:bg-gray-600 rounded-lg p-1"
           >
@@ -182,35 +180,10 @@ const Play = () => {
           </button>
         )}
       </div>
-      <Dialog
+      <TradeTilesModal
         open={tradeInModalOpen}
         onClose={() => setTradeInModalOpen(false)}
-        className="relative z-50"
-      >
-        <div className="fixed inset-0 flex w-screen items-center justify-center p-4 backdrop-blur-sm">
-          <DialogPanel className="max-w-lg w-full space-y-4 border bg-white p-5 rounded-xl shadow-xl">
-            <DialogTitle className="font-bold flex justify-between items-center">
-              Trade in tiles
-              <IconX
-                className="w-5"
-                onClick={() => setTradeInModalOpen(false)}
-              />
-            </DialogTitle>
-            <div className="flex gap-2 justify-center items-center rounded-lg bg-gray-100 p-2 overflow-clip">
-              {state.current_player &&
-                state.current_player.tiles.map((tile) => {
-                  return <Tile key={tile.id} tile={tile} />;
-                })}
-            </div>
-            <div className="flex gap-4 w-full justify-center">
-              <button onClick={() => setTradeInModalOpen(false)}>Cancel</button>
-              <button onClick={() => console.log("trade in tiles")}>
-                Trade
-              </button>
-            </div>
-          </DialogPanel>
-        </div>
-      </Dialog>
+      />
     </div>
   );
 };
