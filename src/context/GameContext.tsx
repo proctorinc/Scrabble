@@ -1,6 +1,7 @@
 import { FC, ReactNode, createContext, useEffect, useState } from "react";
 import { CellWithTile, GameMode, GameState } from "../types";
 import { Link, useParams } from "react-router-dom";
+import { socket } from "../websocket";
 
 type Props = {
   children: ReactNode;
@@ -15,7 +16,7 @@ type GameContext = {
   joinGameUrl: string;
   playTiles: (cells: CellWithTile[]) => void;
   quitGame: () => void;
-  skipTurn: () => void;
+  skipTurn: () => Promise<void>;
 };
 
 const GameContext = createContext<GameContext | null>(null);
@@ -23,6 +24,7 @@ const GameContext = createContext<GameContext | null>(null);
 export const GameContextProvider: FC<Props> = ({ children }) => {
   const { gameId } = useParams();
   const [state, setState] = useState<GameState>();
+  const [games, setGames] = useState<GameState[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const isGameLoaded = state !== undefined;
   const joinGameUrl = isGameLoaded
@@ -35,6 +37,10 @@ export const GameContextProvider: FC<Props> = ({ children }) => {
     }
   }, [gameId]);
 
+  useEffect(() => {
+    fetchGamesList();
+  }, []);
+
   function loadGame(gameId: string) {
     fetch(`http://localhost:8080/v1/game/${gameId}`, {
       credentials: "include",
@@ -42,6 +48,14 @@ export const GameContextProvider: FC<Props> = ({ children }) => {
       .then((response) => response.json())
       .then((data) => setState(data.state))
       .then(() => setIsLoading(false));
+  }
+
+  function fetchGamesList() {
+    fetch("http://localhost:8080/v1/game", {
+      credentials: "include",
+    })
+      .then((response) => response.json())
+      .then((data) => setGames(data.games));
   }
 
   function playTiles(cells: CellWithTile[]) {
@@ -83,8 +97,8 @@ export const GameContextProvider: FC<Props> = ({ children }) => {
       });
   }
 
-  function skipTurn() {
-    fetch(`http://localhost:8080/v1/game/${gameId}/turn/skip`, {
+  async function skipTurn() {
+    return await fetch(`http://localhost:8080/v1/game/${gameId}/turn/skip`, {
       method: "POST",
       credentials: "include",
       headers: {

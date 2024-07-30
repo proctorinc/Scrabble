@@ -3,6 +3,7 @@ import Play from "../pages/Play";
 import Start from "../pages/Start";
 import GameProviders from "../providers/GameProviders";
 import Join from "../pages/Join";
+import Test from "../pages/Test";
 
 const AppRoutes = () => {
   const commonRoutes = [
@@ -24,6 +25,7 @@ const AppRoutes = () => {
         </GameProviders>
       ),
     },
+    { path: "/test", element: <Test /> },
   ];
 
   const routes = useRoutes(commonRoutes);

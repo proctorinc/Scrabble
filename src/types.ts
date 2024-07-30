@@ -8,6 +8,11 @@ export enum GameStatus {
 }
 
 export type BoardCells = Cell[][];
+export type WordOnBoard = {
+  word: string;
+  cells: CellWithTile[];
+  points: number;
+};
 
 export type GameState = {
   id: string;
@@ -19,6 +24,15 @@ export type GameState = {
   tile_bag: {
     tiles: Tile[];
   };
+  players: GamePlayer[];
+  player_turn: GamePlayer;
+  current_player: GamePlayer;
+};
+
+export type GameSummary = {
+  id: string;
+  status: GameStatus;
+  is_local: boolean;
   players: GamePlayer[];
   player_turn: GamePlayer;
   current_player: GamePlayer;
@@ -43,6 +57,7 @@ export type Tile = {
   letter: string;
   value: number;
   in_play: boolean;
+  is_wild: boolean;
 };
 
 export type GamePlayer = {
@@ -51,6 +66,13 @@ export type GamePlayer = {
   user: User;
   score: number;
   tiles: Tile[];
+};
+
+export type GamePlayerWithoutTiles = {
+  id: string;
+  alias: string;
+  user: User;
+  score: number;
 };
 
 export type User = {

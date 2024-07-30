@@ -1,5 +1,5 @@
-import { FC, ReactNode, createContext, useState } from "react";
-import { GamePlayer, Tile } from "../types";
+import { FC, ReactNode, createContext, useEffect, useState } from "react";
+import { GamePlayer, GameState, Tile } from "../types";
 import { shuffle } from "../utils";
 import useGame from "../hooks/useGame";
 import useUser from "../hooks/useUser";
@@ -18,7 +18,7 @@ type PlayerContext = {
   returnTile: (tile: Tile) => void;
   returnTiles: (tiles: Tile[]) => void;
   changeTileOrder: (tileToMove: Tile, index: number) => void;
-  swapTiles: (tileIds: string[]) => void;
+  swapTiles: (tileIds: string[]) => Promise<Response>;
 };
 
 const PlayerContext = createContext<PlayerContext | null>(null);
@@ -35,8 +35,32 @@ export const PlayerContextProvider: FC<Props> = ({ children }) => {
 
   const isMyTurn = currentUser.id === playerTurn.user.id;
 
-  function swapTiles(tileIds: string[]) {
-    fetch(`http://localhost:8080/v1/game/${state.id}/turn/swap`, {
+  useEffect(() => {
+    updateState(state);
+  }, [state]);
+
+  function updateState(state: GameState) {
+    if (state.players !== null) {
+      setPlayerTurn(state.player_turn);
+    } else {
+      console.error("PLAYERS ARE NULL");
+    }
+    if (state.current_player !== null) {
+      setCurrentPlayer(state.current_player);
+    } else {
+      console.error("CURRENT PLAYER IS NULL");
+    }
+    if (state.player_turn !== null) {
+      console.log("UPDATING PLAYER TURN");
+      console.log(state.player_turn);
+      setPlayerTurn(state.player_turn);
+    } else {
+      console.error("PLAYER TURN IS NULL");
+    }
+  }
+
+  async function swapTiles(tileIds: string[]): Promise<Response> {
+    return await fetch(`http://localhost:8080/v1/game/${state.id}/turn/swap`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -44,11 +68,7 @@ export const PlayerContextProvider: FC<Props> = ({ children }) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ tiles: tileIds }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Swap Response:", data);
-      });
+    }).then((response) => response.json());
   }
 
   function shuffleTiles() {

@@ -1,4 +1,4 @@
-import { BoardCells, Cell, CellWithTile, Tile } from "./types";
+import { BoardCells, Cell, CellWithTile, Tile, WordOnBoard } from "./types";
 
 export function shuffle<T>(array: T[]): T[] {
   const copy = [...array];
@@ -145,117 +145,6 @@ export function areVerticalLettersConnected(cells: Cell[], board: BoardCells) {
   return inPlayCount === cells.length;
 }
 
-export function somethingCheckHorizontalWord(
-  startingCell: CellWithTile,
-  board: BoardCells
-) {
-  // Create two pointers, both equal to starting cell
-  let left: Cell = startingCell;
-  let right: Cell = startingCell;
-  let leftDone = false;
-  let rightDone = false;
-  const word: Tile[] = [startingCell.tile];
-
-  // Start at cell
-  while (!rightDone || !leftDone) {
-    // Check left edge
-    if (left.col > 0) {
-      const nextLeft = board[left.row][left.col - 1];
-
-      if (nextLeft.tile !== null) {
-        word.unshift(nextLeft.tile);
-        left = nextLeft;
-
-        // Check for a vertical word if tile was played by the user
-        if (left.tile?.in_play) {
-          // TODO: Check for vertical word
-        }
-      } else {
-        leftDone = true;
-      }
-    } else {
-      leftDone = true;
-    }
-
-    // Check right edge
-    if (right.col < board[0].length - 1) {
-      const nextRight = board[right.row][right.col + 1];
-
-      if (nextRight.tile !== null) {
-        word.push(nextRight.tile);
-        right = nextRight;
-
-        // Check for a vertical word if tile was played by the user
-        if (right.tile?.in_play) {
-          // TODO: Check for vertical word
-        }
-      } else {
-        rightDone = true;
-      }
-    } else {
-      rightDone = true;
-    }
-  }
-
-  console.log("Word:", word.map((tile) => tile.letter).join(""));
-}
-
-export function somethingCheckVerticalWord(
-  startingCell: CellWithTile,
-  board: BoardCells
-) {
-  // Create two pointers, both equal to starting cell
-  let top: Cell = startingCell;
-  let bottom: Cell = startingCell;
-  let topDone = false;
-  let bottomDone = false;
-  const word: Tile[] = [startingCell.tile];
-
-  // Start at cell
-  while (!topDone || !bottomDone) {
-    // Check left edge
-    if (top.col > 0) {
-      const nextTop = board[top.row][top.col - 1];
-
-      if (nextTop.tile !== null) {
-        word.unshift(nextTop.tile);
-        top = nextTop;
-
-        // Check for a horizontal word if tile was played by the user
-        if (top.tile?.in_play) {
-          // TODO: Check for horiztonal word
-        }
-      } else {
-        topDone = true;
-      }
-    } else {
-      topDone = true;
-    }
-
-    // Check right edge
-    if (bottom.col < board[0].length - 1) {
-      // word.push(right.tile);
-      const nextBottom = board[bottom.row + 1][bottom.col];
-
-      if (nextBottom.tile !== null) {
-        word.push(nextBottom.tile);
-        bottom = nextBottom;
-
-        // Check for a horizontal word if tile was played by the user
-        if (bottom.tile?.in_play) {
-          // TODO: Check for horizontal word
-        }
-      } else {
-        bottomDone = true;
-      }
-    } else {
-      bottomDone = true;
-    }
-  }
-
-  console.log("Word:", word.map((tile) => tile.letter).join(""));
-}
-
 export function isFirstTurn(board: BoardCells) {
   return board.every((row) =>
     row.every((cell) => cell.tile === null || cell.tile.in_play)
@@ -279,8 +168,6 @@ export function hasAdjacentTileNotInPlay(
     board[cell.row - 1][cell.col].tile !== null &&
     !board[cell.row - 1][cell.col].tile?.in_play
   ) {
-    console.log("VALID");
-    console.log(board[cell.row + 1][cell.col].tile);
     // Check top
     return true;
   } else if (
@@ -288,8 +175,6 @@ export function hasAdjacentTileNotInPlay(
     board[cell.row + 1][cell.col].tile !== null &&
     !board[cell.row + 1][cell.col].tile?.in_play
   ) {
-    console.log("VALID");
-    console.log(board[cell.row + 1][cell.col].tile);
     // Check bottom
     return true;
   } else if (
@@ -297,8 +182,6 @@ export function hasAdjacentTileNotInPlay(
     board[cell.row][cell.col - 1].tile !== null &&
     !board[cell.row][cell.col - 1].tile?.in_play
   ) {
-    console.log("VALID");
-    console.log(board[cell.row + 1][cell.col].tile);
     // Check left
     return true;
   } else if (
@@ -306,8 +189,6 @@ export function hasAdjacentTileNotInPlay(
     board[cell.row][cell.col + 1].tile !== null &&
     !board[cell.row][cell.col + 1].tile?.in_play
   ) {
-    console.log("VALID");
-    console.log(board[cell.row + 1][cell.col].tile);
     // Check right
     return true;
   }
@@ -320,6 +201,207 @@ export function isWordConnectedToPreviousTile(
   board: BoardCells
 ) {
   return cells.some((cell) => hasAdjacentTileNotInPlay(cell, board));
+}
+
+function hasHorizontalAdjacentCell(
+  cell: CellWithTile,
+  board: BoardCells
+): boolean {
+  if (
+    cell.col + 1 < board[0].length &&
+    board[cell.row][cell.col + 1].tile !== null
+  ) {
+    return true;
+  } else if (cell.col - 1 >= 0 && board[cell.row][cell.col - 1].tile !== null) {
+    return true;
+  }
+
+  return false;
+}
+
+export function getPlayedWords(
+  cells: CellWithTile[],
+  board: BoardCells
+): WordOnBoard[] {
+  const isHorizontal =
+    (cells.length == 1 && hasHorizontalAdjacentCell(cells[0], board)) ||
+    (cells.length > 1 && cells[0].row == cells[1].row);
+  let playedWords: WordOnBoard[] = [];
+
+  console.log("adjacent:", hasHorizontalAdjacentCell(cells[0], board));
+  console.log("is horizontal", isHorizontal);
+
+  if (isHorizontal) {
+    playedWords = getHorizontalPlayedWords(cells, board);
+  } else {
+    playedWords = getVerticalPlayedWords(cells, board);
+  }
+
+  return playedWords;
+}
+
+function getHorizontalPlayedWords(
+  cells: CellWithTile[],
+  board: BoardCells
+): WordOnBoard[] {
+  const mainWordCells = getHorizontalWordCells(cells[0], board);
+  const mainWord = getWordFromCells(mainWordCells);
+  const playedWords: WordOnBoard[] = [mainWord];
+
+  mainWordCells.map((cell) => {
+    if (cell.tile.in_play) {
+      const verticalCells = getVerticalWordCells(cell, board);
+
+      if (verticalCells.length > 1) {
+        const word = getWordFromCells(verticalCells);
+        playedWords.push(word);
+      }
+    }
+  });
+
+  return playedWords;
+}
+
+function getVerticalPlayedWords(
+  cells: CellWithTile[],
+  board: BoardCells
+): WordOnBoard[] {
+  const mainWordCells = getVerticalWordCells(cells[0], board);
+  const mainWord = getWordFromCells(mainWordCells);
+  const playedWords: WordOnBoard[] = [mainWord];
+
+  mainWordCells.map((cell) => {
+    if (cell.tile.in_play) {
+      const verticalCells = getHorizontalWordCells(cell, board);
+
+      if (verticalCells.length > 1) {
+        const word = getWordFromCells(verticalCells);
+        playedWords.push(word);
+      }
+    }
+  });
+
+  return playedWords;
+}
+
+function getHorizontalWordCells(
+  startingCell: CellWithTile,
+  board: BoardCells
+): CellWithTile[] {
+  let currentCell = startingCell;
+  const cells = [startingCell];
+
+  while (currentCell.tile != null && currentCell.col + 1 < board[0].length) {
+    currentCell = board[currentCell.row][currentCell.col + 1] as CellWithTile;
+
+    if (currentCell.tile != null) {
+      cells.push(currentCell);
+    }
+  }
+
+  currentCell = startingCell;
+
+  while (currentCell.tile != null && currentCell.col - 1 >= 0) {
+    currentCell = board[currentCell.row][currentCell.col - 1] as CellWithTile;
+
+    if (currentCell.tile != null) {
+      cells.unshift(currentCell);
+    }
+  }
+
+  return cells;
+}
+
+function getVerticalWordCells(
+  startingCell: CellWithTile,
+  board: BoardCells
+): CellWithTile[] {
+  let currentCell = startingCell;
+  const cells = [startingCell];
+
+  while (currentCell.tile != null && currentCell.row + 1 < board.length) {
+    currentCell = board[currentCell.row + 1][currentCell.col] as CellWithTile;
+
+    if (currentCell.tile != null) {
+      cells.push(currentCell);
+    }
+  }
+
+  currentCell = startingCell;
+
+  while (currentCell.tile != null && currentCell.row - 1 >= 0) {
+    currentCell = board[currentCell.row - 1][currentCell.col] as CellWithTile;
+
+    if (currentCell.tile != null) {
+      cells.unshift(currentCell);
+    }
+  }
+
+  return cells;
+}
+
+function getWordFromCells(cells: CellWithTile[]): WordOnBoard {
+  let points = 0;
+  let doubleWordBonus = 0;
+  let tripleWordBonus = 0;
+  const word: string[] = [];
+
+  cells.map((cell) => {
+    word.push(cell.tile.letter);
+    points += calculateCellPoints(cell);
+
+    if (cell.tile.in_play && cell.bonus === "DW") {
+      doubleWordBonus += 1;
+    } else if (cell.tile.in_play && cell.bonus === "TW") {
+      tripleWordBonus += 1;
+    }
+  });
+
+  if (doubleWordBonus > 0) {
+    points *= 2 * doubleWordBonus;
+  }
+
+  if (tripleWordBonus > 0) {
+    points *= 3 * tripleWordBonus;
+  }
+
+  return {
+    word: word.join(""),
+    cells,
+    points,
+  };
+}
+
+function calculateCellPoints(cell: CellWithTile): number {
+  if (cell.tile.in_play && cell.bonus == "DL") {
+    return cell.tile.value * 2;
+  } else if (cell.tile.in_play && cell.bonus == "TL") {
+    return cell.tile.value * 3;
+  }
+
+  return cell.tile.value;
+}
+
+export function getTotalPoints(playedWords: WordOnBoard[]): number {
+  let totalPoints = playedWords.reduce((acc, word) => acc + word.points, 0);
+
+  if (getNumberOfInPlayTiles(playedWords[0]) == 7) {
+    totalPoints += 50;
+  }
+
+  return totalPoints;
+}
+
+function getNumberOfInPlayTiles(word: WordOnBoard): number {
+  let count = 0;
+
+  word.cells.forEach((cell) => {
+    if (cell.tile.in_play) {
+      count++;
+    }
+  });
+
+  return count;
 }
 
 export const INITIAL_PLAYER_TILES: Tile[] = [

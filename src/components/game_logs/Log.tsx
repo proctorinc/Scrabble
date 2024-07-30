@@ -18,17 +18,28 @@ const Log: FC<Props> = ({ log }) => {
   const isCurrentPlayer = currentPlayer.id === log.player.id;
 
   const Wrapper: FC<WrapperProps> = ({ children }) => {
+    if (isCurrentPlayer) {
+      return (
+        <div className="flex w-full justify-end gap-1 items-center">
+          <div className="flex gap-1 bg-gray-200 shadow-inner rounded-md p-2 w-fit items-center">
+            <span className="text-sm">{children}</span>
+          </div>
+          <span className="flex w-8 h-8 rounded-md items-center justify-center text-white font-semibold bg-gradient-to-tr from-blue-400 to-blue-300 shadow-inner">
+            P1
+          </span>
+        </div>
+      );
+    }
+
     return (
-      <p className="flex gap-2 w-full justify-between items-center">
-        <span className="bg-gray-200 rounded-md px-2 py-1 whitespace-nowrap">
-          {state.is_local && log.player.alias}
-          {!state.is_local &&
-            (isCurrentPlayer
-              ? `${log.player.user.username} (you)`
-              : log.player.user.username)}
+      <div className="flex w-full gap-1 items-center">
+        <span className="flex w-8 h-8 rounded-md items-center justify-center text-white font-semibold bg-gradient-to-tr from-red-400 to-red-300 shadow-inner">
+          P2
         </span>
-        {children}
-      </p>
+        <div className="flex gap-1 bg-gray-200 shadow-inner rounded-md p-2 w-fit items-center">
+          <span className="text-sm">{children}</span>
+        </div>
+      </div>
     );
   };
 

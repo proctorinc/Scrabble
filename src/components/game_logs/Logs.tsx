@@ -23,13 +23,10 @@ const Logs = () => {
   }, [gameId]);
 
   return (
-    <div className="flex flex-col gap-2 max-w-xs overflow-auto">
-      <h3>Game Logs</h3>
-      <div className="flex flex-col gap-2 text-sm">
-        {logs.map((log) => (
-          <Log key={log.id} log={log} />
-        ))}
-      </div>
+    <div className="flex flex-col-reverse justify-end h-full gap-3 text-sm p-4 pb-16">
+      {logs.map((log) => (
+        <Log key={log.id} log={log} />
+      ))}
     </div>
   );
 };

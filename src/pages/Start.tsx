@@ -1,7 +1,9 @@
 import { useNavigate } from "react-router-dom";
+import useGameHistory from "../hooks/useGameHistory";
 
 const Start = () => {
   const navigate = useNavigate();
+  const { games } = useGameHistory();
 
   function startGame(isLocal: boolean) {
     fetch(
@@ -52,14 +54,16 @@ const Start = () => {
         <div className="flex flex-col gap-3 w-full">
           <h3 className="text-sm">My Games</h3>
           <div className="flex flex-col gap-2">
-            <div className="border-2 border-black rounded-lg flex justify-between w-full p-3">
-              <h4>Game</h4>
-              <p>245 - 110</p>
-            </div>
-            <div className="border-2 border-black rounded-lg flex justify-between w-full p-3">
-              <h4>Game</h4>
-              <p>245 - 110</p>
-            </div>
+            {games.map((game) => (
+              <div
+                onClick={() => navigate(`/play/${game.id}`)}
+                className="cursor-pointer border-2 border-black rounded-lg flex justify-between w-full p-3"
+              >
+                <h4>{game.status}</h4>
+                <p>{game.is_local ? "Local" : "Online"}</p>
+                <p>Players: {game.players.length}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>

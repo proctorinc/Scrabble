@@ -1,19 +1,19 @@
 import { FC, ReactNode, createContext, useEffect, useState } from "react";
-import { BoardCells, Cell, CellWithTile, Tile } from "../types";
+import { BoardCells, Cell, CellWithTile, Tile, WordOnBoard } from "../types";
 import {
   addTileToBoard,
   areHorizontalLettersConnected,
   areVerticalLettersConnected,
   getCellsWithInPlayTiles,
+  getPlayedWords,
   getTileAtLocation,
+  getTotalPoints,
   isFirstTurn,
   isTileOnBoard,
   isTileOnCenterOfTheBoard,
   isWordConnectedToPreviousTile,
   removePlayerTilesFromBoard,
   removeTileFromBoard,
-  somethingCheckHorizontalWord,
-  somethingCheckVerticalWord,
 } from "../utils";
 import useGame from "../hooks/useGame";
 import usePlayer from "../hooks/usePlayer";
@@ -29,8 +29,14 @@ type BoardContext = {
   returnAllPlayerTiles: () => void;
   isTileOnCell: (row: number, col: number) => boolean;
   isTilePlayed: (tile: Tile) => boolean;
-  validCells: CellWithTile[];
+  playedCells: CellWithTile[];
+  playedWords: WordOnBoard[];
   isValidLetterPlacement: boolean;
+  isValidDefinitions: boolean;
+  potentialPoints: number;
+  getWildLetter: (tileId: string) => string;
+  setWildLetter: (tileId: string, letter: string) => void;
+  removeWildLetter: (tileId: string) => void;
 };
 
 const BoardContext = createContext<BoardContext | null>(null);
@@ -43,20 +49,51 @@ export const BoardContextProvider: FC<Props> = ({ children }) => {
     returnTiles: returnPlayerTiles,
   } = usePlayer();
   const [board, setBoard] = useState<BoardCells>(state.board.cells);
+  const [playedCells, setPlayedCells] = useState<CellWithTile[]>([]);
+  const [playedWords, setPlayedWords] = useState<WordOnBoard[]>([]);
+  const [potentialPoints, setPotentialPoints] = useState(0);
+  const [wildLetters, setWildLetters] = useState(new Map<string, string>());
+  const [isValidDefinitions, setIsValidDefinitions] = useState(false);
   const [isValidLetterPlacement, setIsValidLetterPlacement] = useState(false);
-  const [validCells, setValidCells] = useState<CellWithTile[]>([]);
 
   useEffect(() => {
-    const cells = checkForValidLetterPlacement();
+    setBoard(state.board.cells);
+  }, [state]);
 
-    setValidCells(cells);
-    setIsValidLetterPlacement(cells.length > 0);
+  useEffect(() => {
+    const cells = getCellsWithInPlayTiles(board);
+    setPlayedCells(cells);
+
+    if (validateLetterPlacement(cells)) {
+      setIsValidLetterPlacement(true);
+
+      const words = getPlayedWords(cells, board);
+      setPlayedWords(words);
+
+      validateWordDefinitions(words).then((isValid) => {
+        if (isValid) {
+          const totalPoints = getTotalPoints(words);
+          setPotentialPoints(totalPoints);
+          setPlayedCells(cells);
+          setIsValidDefinitions(true);
+        } else {
+          console.log("definitions failed validation");
+          setIsValidDefinitions(false);
+        }
+      });
+    } else {
+      setPotentialPoints(0);
+      setIsValidDefinitions(false);
+      setIsValidLetterPlacement(false);
+    }
   }, [board]);
 
   function playTile(tile: Tile, row: number, col: number) {
     if (isTileOnBoard(tile, board)) {
+      console.log("Tile is already on the board");
       moveTileOnBoard(tile, row, col);
     } else {
+      console.log("Tile is coming from the user");
       playTileFromPlayer(tile, row, col);
     }
   }
@@ -91,28 +128,25 @@ export const BoardContextProvider: FC<Props> = ({ children }) => {
     }
   }
 
-  function checkForValidLetterPlacement(): CellWithTile[] {
-    // Get all cells that are currently in play
-    const cells = getCellsWithInPlayTiles(board);
-
+  function validateLetterPlacement(cells: CellWithTile[]): boolean {
     // If first turn, tile must be placed on center cell
     if (isFirstTurn(board)) {
       if (!isTileOnCenterOfTheBoard(board)) {
         console.log("First turn and word is not in the center of the board");
-        return [];
+        return false;
       }
     } else if (!isWordConnectedToPreviousTile(cells, board)) {
       // TODO: Otherwise make sure the tiles are placed next to a previous tile
       console.log(
         "At least one tile in the word must be placed next to a previous tile"
       );
-      return [];
+      return false;
     }
 
     // Check more than one cell has been played
     if (cells.length === 0) {
       console.log("Invalid word none played");
-      return [];
+      return false;
     }
 
     // Check letters are in the same vertical column
@@ -126,7 +160,7 @@ export const BoardContextProvider: FC<Props> = ({ children }) => {
       !areVerticalLettersConnected(cells, board)
     ) {
       console.log("Invalid spaces between vertical tiles");
-      return [];
+      return false;
     }
 
     // Check letters are in the same horizontal row
@@ -140,28 +174,16 @@ export const BoardContextProvider: FC<Props> = ({ children }) => {
       !areHorizontalLettersConnected(cells, board)
     ) {
       console.log("Invalid spaces between horiztonal tiles");
-      return [];
+      return false;
     }
 
     // Must be either horizontal or vertical placement
     if (!isValidHorizontalPlacement && !isValidVerticalPlacement) {
       console.log("Invalid horizontal word");
-      return [];
+      return false;
     }
 
-    // const words: string[] = [];
-
-    // Validate that there are no gaps between the tiles
-    if (isValidHorizontalPlacement) {
-      // Get all word combinations
-      somethingCheckHorizontalWord(cells[0], board);
-    } else {
-      // Get all word combinations
-      somethingCheckVerticalWord(cells[0], board);
-    }
-
-    console.log("Valid word!!");
-    return cells;
+    return true;
   }
 
   function returnTile(tile: Tile) {
@@ -172,6 +194,7 @@ export const BoardContextProvider: FC<Props> = ({ children }) => {
   function returnAllPlayerTiles() {
     const tiles = removePlayerTilesFromBoard(board);
     returnPlayerTiles(tiles);
+    setBoard(state.board.cells);
   }
 
   function isTileOnCell(row: number, col: number) {
@@ -182,6 +205,40 @@ export const BoardContextProvider: FC<Props> = ({ children }) => {
     return isTileOnBoard(tile, board);
   }
 
+  async function validateWordDefinitions(
+    words: WordOnBoard[]
+  ): Promise<boolean> {
+    return await fetch("http://localhost:8080/v1/dictionary/validate", {
+      method: "POST",
+      credentials: "include",
+      body: JSON.stringify({ words: words.map((word) => word.word) }),
+    })
+      .then((response) => {
+        console.log("RESPONSE:", response);
+        if (response.ok) {
+          return true;
+        } else {
+          return false;
+        }
+      })
+      .catch(() => false);
+  }
+
+  function setWildLetter(tileId: string, letter: string) {
+    setWildLetters((prev) => prev.set(tileId, letter));
+  }
+
+  function removeWildLetter(tileId: string) {
+    setWildLetters((prev) => {
+      prev.delete(tileId);
+      return prev;
+    });
+  }
+
+  function getWildLetter(tileId: string): string {
+    return wildLetters.get(tileId) ?? "";
+  }
+
   const contextData = {
     board,
     playTile,
@@ -189,8 +246,14 @@ export const BoardContextProvider: FC<Props> = ({ children }) => {
     returnAllPlayerTiles,
     isTileOnCell,
     isTilePlayed,
-    validCells,
+    playedCells,
+    playedWords,
     isValidLetterPlacement,
+    isValidDefinitions,
+    potentialPoints,
+    setWildLetter,
+    removeWildLetter,
+    getWildLetter,
   };
 
   return (
