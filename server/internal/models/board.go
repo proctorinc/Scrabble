@@ -263,7 +263,7 @@ func (b *Board) getVerticalWordCells(startingCell Cell) []Cell {
 	return cells
 }
 
-func (b *Board) ConfirmInPlayTiles() error {
+func (b *Board) ConfirmInPlayTiles() {
 	// Set all tiles that are in play to false
 	for _, row := range b.Cells {
 		for _, cell := range row {
@@ -272,8 +272,6 @@ func (b *Board) ConfirmInPlayTiles() error {
 			}
 		}
 	}
-
-	return nil
 }
 
 func (b *Board) getCellsWithInPlayTiles() []Cell {

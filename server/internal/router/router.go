@@ -16,6 +16,9 @@ func NewRouter() *gin.Engine {
 
   router.Use(cors.New(config))
 
+	websocket := new(controllers.WebsocketController)
+	router.GET("/ws", websocket.WebSocketHandler)
+
 	// Router groups
 	v1 := router.Group("v1")
 	{
@@ -27,6 +30,7 @@ func NewRouter() *gin.Engine {
 		gameGroup := v1.Group("game", middleware.AuthRequired())
 		{
 			game := new(controllers.GameController)
+			gameGroup.GET("", game.GetGameList)
 			gameGroup.POST("/start", game.StartGame)
 			gameIdGroup := gameGroup.Group(":id")
 			{
@@ -46,7 +50,8 @@ func NewRouter() *gin.Engine {
 		dictGroup := v1.Group("dictionary", middleware.AuthRequired())
 		{
 			dictionary := new(controllers.DictionaryController)
-			dictGroup.GET("/define", dictionary.GetDefinition)
+			dictGroup.GET("/define", dictionary.DefineWord)
+			dictGroup.POST("/validate", dictionary.ValidateWords)
 		}
 	}
 

@@ -12,18 +12,23 @@ func NewGameService() *GameService {
 }
 
 func (s *GameService) GetGameState(userId string, gameId string) (*models.Game, error) {
-	game, err := models.GetGameById(gameId)
+	game, err := models.GetGameById(gameId, userId)
 
 	if err != nil {
 		return nil, err
 	}
 
-	// Skip error for when user first joins and there is no current player
-	player, _ := models.GetGamePlayer(userId, gameId)
-
-	game.CurrentPlayer = player
-
 	return game, nil
+}
+
+func (s *GameService) GetGameList(userId string) ([]models.Game, error) {
+	games, err := models.GetGamesByUserId(userId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return games, nil
 }
 
 func (s *GameService) GetGameLogs(gameId string) ([]*models.GameLog, error) {
@@ -84,8 +89,8 @@ func (s *GameService) CreateNewGame(userId string, isLocal bool) (*models.Game, 
 	return game.Save()
 }
 
-func (s *GameService) QuitGame(gameId string) (*models.Game, error) {
-	game, err := models.GetGameById(gameId)
+func (s *GameService) QuitGame(userId string, gameId string) (*models.Game, error) {
+	game, err := models.GetGameById(gameId, userId)
 
 	if err != nil {
 		return nil, err
@@ -104,7 +109,7 @@ func (s *GameService) QuitGame(gameId string) (*models.Game, error) {
 }
 
 func (s *GameService) JoinGame(userId string, gameId string) (*models.Game, error) {
-	game, err := models.GetGameById(gameId)
+	game, err := models.GetGameById(gameId, userId)
 
 	if err != nil {
 		return nil, err
@@ -147,10 +152,10 @@ func (s *GameService) JoinGame(userId string, gameId string) (*models.Game, erro
 	return nil, fmt.Errorf("game is no longer accepting players to join")
 }
 
-func (s *GameService) PlayTiles(gameId string, cells []models.Cell) (*models.Game, error) {
+func (s *GameService) PlayTiles(userId string, gameId string, cells []models.Cell) (*models.Game, error) {
 	dictionaryService := NewDictionaryService()
 	
-	game, err := models.GetGameById(gameId)
+	game, err := models.GetGameById(gameId, userId)
 
 	if err != nil {
 		return nil, err
@@ -184,7 +189,13 @@ func (s *GameService) PlayTiles(gameId string, cells []models.Cell) (*models.Gam
 		return nil, fmt.Errorf("no valid words were played")
 	}
 
-	if err := dictionaryService.ValidateWords(played.Words); err != nil {
+	var wordStrings []string
+
+	for _, played := range played.Words {
+		wordStrings = append(wordStrings, played.Word)
+	}
+
+	if err := dictionaryService.ValidateWords(wordStrings); err != nil {
 		return nil, err
 	}
 
@@ -215,8 +226,8 @@ func (s *GameService) PlayTiles(gameId string, cells []models.Cell) (*models.Gam
 	return game.Save()
 }
 
-func (s *GameService) SwapTiles(gameId string, tileIds []string) (*models.Game, error) {
-	game, err := models.GetGameById(gameId)
+func (s *GameService) SwapTiles(userId string, gameId string, tileIds []string) (*models.Game, error) {
+	game, err := models.GetGameById(gameId, userId)
 
 	if err != nil {
 		return nil, err
@@ -254,8 +265,8 @@ func (s *GameService) SwapTiles(gameId string, tileIds []string) (*models.Game, 
 	return game.Save()
 }
 
-func (s *GameService) SkipTurn(gameId string) (*models.Game, error) {
-	game, err := models.GetGameById(gameId)
+func (s *GameService) SkipTurn(userId string, gameId string) (*models.Game, error) {
+	game, err := models.GetGameById(gameId, userId)
 
 	if err != nil {
 		return nil, err
@@ -268,15 +279,11 @@ func (s *GameService) SkipTurn(gameId string) (*models.Game, error) {
 		return nil, err
 	}
 
-	err = game.IncrementTurn()
-
-	if err != nil {
+	if err = game.IncrementTurn(); err != nil {
 		return nil, err
 	}
 
-	game.Save()
-
-	return game, nil
+	return game.Save()
 }
 
 func getTilesFromCells(cells []models.Cell) ([]models.Tile, error) {

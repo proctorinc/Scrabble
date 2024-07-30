@@ -14,6 +14,12 @@ func main() {
 		godotenv.Load(".env")
 		db.Connect()
 
+		// Only needs to be done once for DB
+		// err := models.LoadDictionaryWords()
+		// if err != nil {
+		// 	log.Printf("Failed to load dictionary words: %v", err)
+		// }
+
 		db := db.GetDB()
 		defer db.Close()
 

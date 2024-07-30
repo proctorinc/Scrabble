@@ -35,6 +35,11 @@ func NewDictionaryService() DictionaryService{
 
 func (s *DictionaryService) GetDefinition(word string) ([]DefinitionResponse, error) {
 	dictionaryApiUrl := fmt.Sprintf("https://api.dictionaryapi.dev/api/v2/entries/en/%s", url.PathEscape(word))
+
+	if !models.IsWordInDictionary(word) {
+		return nil, fmt.Errorf("word [%s] is invalid", word)
+	}
+
 	resp, err := http.Get(dictionaryApiUrl)
 	
 	if err != nil {
@@ -57,10 +62,18 @@ func (s *DictionaryService) GetDefinition(word string) ([]DefinitionResponse, er
 	return definitionResponse, nil
 }
 
-func (s *DictionaryService) ValidateWords(words []models.PlayedWord) error {
+func (s *DictionaryService) ValidateWord(word string) error {
+	if !models.IsWordInDictionary(word) {
+		return fmt.Errorf("word [%s] not in the dictionary", word)
+	}
+
+	return nil
+} 
+
+func (s *DictionaryService) ValidateWords(words []string) error {
 	for _, word := range words {
-		if _, err := s.GetDefinition(word.Word); err != nil {
-			return fmt.Errorf("word [%s] is invalid", word.Word)
+		if err := s.ValidateWord(word); err != nil {
+			return err
 		}
 	}
 

@@ -9,7 +9,11 @@ import (
 
 type DictionaryController struct{}
 
-func (c *DictionaryController) GetDefinition(ctx *gin.Context) {
+type ValidateWordsBody struct {
+	Words []string `json:"words"`
+}
+
+func (c *DictionaryController) DefineWord(ctx *gin.Context) {
 	word := ctx.Query("word")
 	dictService := services.NewDictionaryService()
 
@@ -28,4 +32,26 @@ func (c *DictionaryController) GetDefinition(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "Word definition retrieved", "result": definition})
+}
+
+func (c *DictionaryController) ValidateWords(ctx *gin.Context) {
+	dictService := services.NewDictionaryService()
+
+	var body ValidateWordsBody
+
+	if err := ctx.ShouldBindBodyWithJSON(&body); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{ "message": "Invalid request body", "error": err.Error() })
+		ctx.Abort()
+		return
+	}
+
+	err := dictService.ValidateWords(body.Words)
+
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{ "message": "Error validating word", "error": err.Error() })
+		ctx.Abort()
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Word is in the dictionary"})
 }

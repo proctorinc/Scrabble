@@ -49,10 +49,15 @@ const initializeTables string = `
 		date TIMESTAMPTZ NOT NULL
 	);
 
+	CREATE TABLE IF NOT EXISTS dictionary_words (
+		word VARCHAR(255) PRIMARY KEY
+	);
+
 	CREATE TABLE IF NOT EXISTS word_definitions (
-		word VARCHAR(255) PRIMARY KEY,
-		definitions VARCHAR(255),
-		date TIMESTAMPTZ NOT NULL
+		id VARCHAR(255) PRIMARY KEY,
+		word VARCHAR(255) REFERENCES dictionary_words (word) NOT NULL,
+		definition VARCHAR(255),
+		updated TIMESTAMPTZ NOT NULL
 	);
 
 	ALTER TABLE games

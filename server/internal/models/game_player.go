@@ -51,7 +51,7 @@ func GetGamePlayersByGameId(gameId string) ([]GamePlayer, error) {
 	players := []GamePlayer{}
 
 	rows, err := db.Query(`
-		SELECT id, alias, player_id, username, score, tiles
+		SELECT id, alias, player_id, username, score
 		FROM game_players
 		JOIN users ON game_players.player_id = users.user_id
 		WHERE game_id = $1`,
@@ -67,15 +67,8 @@ func GetGamePlayersByGameId(gameId string) ([]GamePlayer, error) {
 		player := GamePlayer{
 			User: User{},
 		}
-		var tiles []uint8
 
-		if err := rows.Scan(&player.Id, &player.Alias, &player.User.Id, &player.User.Username, &player.Score, &tiles); err != nil {
-			return nil, err
-		}
-
-		err = json.Unmarshal(tiles, &player.Tiles)
-
-		if err != nil {
+		if err := rows.Scan(&player.Id, &player.Alias, &player.User.Id, &player.User.Username, &player.Score); err != nil {
 			return nil, err
 		}
 
@@ -108,7 +101,35 @@ func CreateGamePlayer(gameId string, user User, alias string) (*GamePlayer, erro
 	return player, nil
 }
 
-func GetGamePlayer(userId string, gameId string) (*GamePlayer, error) {
+func GetGamePlayerById(playerId string, gameId string) (*GamePlayer, error) {
+	db := db.GetDB()
+
+	player := &GamePlayer{
+		User: User{},
+	}
+	var tiles []uint8
+
+	err := db.QueryRow(`
+		SELECT id, alias, player_id, username, score, tiles
+		FROM game_players
+		JOIN users ON game_players.player_id = users.user_id
+		WHERE id = $1 and game_id = $2`,
+		playerId, gameId).Scan(&player.Id, &player.Alias, &player.User.Id, &player.User.Username, &player.Score, &tiles)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(tiles, &player.Tiles)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return player, nil
+}
+
+func GetGamePlayerByUserId(userId string, gameId string) (*GamePlayer, error) {
 	db := db.GetDB()
 
 	player := &GamePlayer{
@@ -193,7 +214,9 @@ func (p *GamePlayer) removeTile(tile Tile) error {
 
 func (p *GamePlayer) hasTile(tile Tile) bool {
 	for _, playerTile := range p.Tiles {
-		if playerTile.Id == tile.Id {
+		if tile.IsWild && playerTile.Id == tile.Id {
+			return true
+		} else if !tile.IsWild && playerTile.Id == tile.Id && playerTile.Letter == tile.Letter {
 			return true
 		}
 	}

@@ -37,7 +37,7 @@ func GameAuthRequired() gin.HandlerFunc {
 		gameId := ctx.Param("id")
 		userId := ctx.GetString("user_id")
 
-		_, err := models.GetGamePlayer(userId, gameId)
+		_, err := models.GetGamePlayerByUserId(userId, gameId)
 
 		// Verify http only cookies
 		if err != nil {
@@ -55,7 +55,7 @@ func ActiveTurnRequired() gin.HandlerFunc {
 		gameId := ctx.Param("id")
 		userId := ctx.GetString("user_id")
 
-		game, err := models.GetGameById(gameId)
+		game, err := models.GetGameById(gameId, userId)
 
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{ "message": "game not found" })

@@ -17,6 +17,7 @@ type Tile struct {
 	Letter string `json:"letter"`
 	Value int `json:"value"`
 	InPlay bool `json:"in_play"`
+	IsWild bool `json:"is_wild"`
 }
 
 var scrabbleTileValues = map[string]int{
@@ -46,7 +47,7 @@ var scrabbleTileValues = map[string]int{
 	"X": 8,
 	"Y": 4,
 	"Z": 10,
-	"*": 0,
+	"": 0,
 }
 
 var scrabbleTileCount = map[string]int{
@@ -58,7 +59,7 @@ var scrabbleTileCount = map[string]int{
 	"G": 3,
 	"B": 2,	"C": 2, "F": 2,	"H": 2, "M": 2,	"P": 2, "V": 2,	"W": 2, "Y": 2,	
 	"J": 1, "K": 1, "Q": 1, "X": 1, "Z": 1,
-	"*": 2,
+	"": 2,
 }
 
 func NewTileBag() TileBag {
@@ -139,6 +140,7 @@ func (b *TileBag) GetTile(letter string) Tile {
 	return Tile{
 		Letter: letter,
 		Value: scrabbleTileValues[letter],
+		IsWild: letter == "",
 	}
 }
 
@@ -167,6 +169,7 @@ func generateScrabbleTiles() []Tile {
 				Id: uuid.NewString(),
 				Letter: letter,
 				Value: scrabbleTileValues[letter],
+				IsWild: letter == "",
 			}
 			index++
 		}

@@ -18,6 +18,21 @@ type SwapTilesRequestBody struct {
 	TileIds []string `json:"tiles"`
 }
 
+func (gc *GameController) GetGameList(ctx *gin.Context) {
+	userId := ctx.GetString("user_id")
+	gameService := services.NewGameService()
+
+	games, err := gameService.GetGameList(userId)
+
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{ "message": "Error retrieving game list", "error": err.Error() })
+		ctx.Abort()
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Game list retrieved", "games": games})
+}
+
 func (gc *GameController) GetGame(ctx *gin.Context) {
 	gameId := ctx.Param("id")
 	userId := ctx.GetString("user_id")
@@ -82,9 +97,11 @@ func (gc *GameController) JoinGame(ctx *gin.Context) {
 }
 
 func (gc *GameController) QuitGame(ctx *gin.Context) {
-gameId := ctx.Param("id")
+	gameId := ctx.Param("id")
+	userId := ctx.GetString("user_id")
 	gameService := services.NewGameService()
-	game, err := gameService.QuitGame(gameId)
+
+	game, err := gameService.QuitGame(userId, gameId)
 
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{ "message": "Error quitting", "error": err.Error() })
@@ -97,6 +114,7 @@ gameId := ctx.Param("id")
 
 func (gc *GameController) PlayTiles(ctx *gin.Context) {
 	gameId := ctx.Param("id")
+	userId := ctx.GetString("user_id")
 	gameService := services.NewGameService()
 
 	var body PlayTilesRequestBody
@@ -107,7 +125,7 @@ func (gc *GameController) PlayTiles(ctx *gin.Context) {
 		return
 	}
 
-	game, err := gameService.PlayTiles(gameId, body.Cells)
+	game, err := gameService.PlayTiles(userId, gameId, body.Cells)
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{ "message": "Invalid tile placement", "error": err.Error() })
@@ -120,6 +138,7 @@ func (gc *GameController) PlayTiles(ctx *gin.Context) {
 
 func (gc *GameController) SwapTiles(ctx *gin.Context) {
 	gameId := ctx.Param("id")
+	userId := ctx.GetString("user_id")
 	gameService := services.NewGameService()
 
 	var body SwapTilesRequestBody
@@ -130,7 +149,7 @@ func (gc *GameController) SwapTiles(ctx *gin.Context) {
 		return
 	}
 
-	game, err := gameService.SwapTiles(gameId, body.TileIds)
+	game, err := gameService.SwapTiles(userId, gameId, body.TileIds)
 
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{ "message": "Error swapping tiles", "error": err.Error() })
@@ -143,8 +162,10 @@ func (gc *GameController) SwapTiles(ctx *gin.Context) {
 
 func (gc *GameController) SkipTurn(ctx *gin.Context) {
 	gameId := ctx.Param("id")
+	userId := ctx.GetString("user_id")
 	gameService := services.NewGameService()
-	game, err := gameService.SkipTurn(gameId)
+
+	game, err := gameService.SkipTurn(userId, gameId)
 
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{ "message": "Error skipping turn", "error": err.Error() })

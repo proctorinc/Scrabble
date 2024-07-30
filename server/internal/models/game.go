@@ -12,10 +12,10 @@ type Game struct {
 	Id string `json:"id"`
 	Status GameStatus `json:"status"`
 	IsLocal bool `json:"is_local"`
-	Board Board `json:"board"`
-	TileBag TileBag `json:"tile_bag"`
+	Board Board `json:"board,omitempty"`
+	TileBag TileBag `json:"tile_bag,omitempty"`
 	Players []GamePlayer `json:"players"`
-	CurrentPlayer *GamePlayer `json:"current_player"`
+	CurrentPlayer *GamePlayer `json:"current_player,omitempty"`
 	PlayerTurn *GamePlayer `json:"player_turn"`
 }
 
@@ -58,7 +58,7 @@ func CreateGame(userId string, isLocal bool) (*Game, error) {
 	return &game, nil
 }
 
-func GetGameById(id string) (*Game, error) {
+func GetGameById(id string, userId string) (*Game, error) {
 	db := db.GetDB()
 	
 	game := &Game{
@@ -104,8 +104,75 @@ func GetGameById(id string) (*Game, error) {
 		return nil, err
 	}
 
+	player, _ := GetGamePlayerByUserId(userId, game.Id)
+
+	// If local, current player is always player turn
+	if game.IsLocal {
+		game.CurrentPlayer = game.PlayerTurn
+	} else {
+		game.CurrentPlayer = player
+	}
+
 	return game, nil
 }
+
+func GetGamesByUserId(userId string) ([]Game, error) {
+	db := db.GetDB()
+
+	games := []Game{}
+	var playerTurnId string
+
+	rows, err := db.Query(`
+		SELECT DISTINCT games.game_id, status, player_turn_id, is_local
+		FROM games
+		JOIN game_players ON game_players.game_id = games.game_id
+		WHERE game_players.player_id = $1`,
+		userId)
+
+	if err == nil {
+		defer rows.Close()
+
+		for rows.Next() {
+			game := Game{}
+
+			if err := rows.Scan(&game.Id, &game.Status, &playerTurnId, &game.IsLocal); err != nil {
+				return nil, err
+			}
+
+			players, err := GetGamePlayersByGameId(game.Id)
+
+			game.Players = players
+
+			if err != nil {
+				return nil, err
+			}
+
+			games = append(games, game)
+		}
+	}
+
+	return games, nil
+}
+
+func (g *Game) CheckGameOver() {
+	isOver := false
+
+	// Check tilebag is empty
+	if len(g.TileBag.Tiles) == 0 {
+
+		// Check any player has no tiles left
+		for _, player := range g.Players {
+			if len(player.Tiles) == 0 {
+				isOver = true
+			}
+		}
+	}
+
+	if isOver {
+		g.Status = COMPLETED
+	}
+}
+
 
 func (g Game) IsWaitingForPlayer() bool {
 	return !g.IsLocal && g.Status == INVITE_PLAYERS
@@ -173,6 +240,17 @@ func (g *Game) IncrementTurn() error {
 		if player.Id != g.PlayerTurn.Id {
 			g.PlayerTurn = &player
 			
+			// Also update current player for local game
+			if g.IsLocal {
+				playerWithTiles, err := GetGamePlayerById(player.Id, g.Id)
+
+				if err != nil {
+					return err
+				}
+				
+				g.CurrentPlayer = playerWithTiles
+			}
+
 			return nil
 		}
 	}
