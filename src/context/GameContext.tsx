@@ -1,7 +1,8 @@
 import { FC, ReactNode, createContext, useEffect, useState } from "react";
-import { CellWithTile, GameMode, GameState } from "../types";
+import { CellWithTile, GameMode, GameState, PlayTilesResponse } from "../types";
 import { Link, useParams } from "react-router-dom";
 import { socket } from "../websocket";
+import useScoreAlert from "../hooks/useScoreAlert";
 
 type Props = {
   children: ReactNode;
@@ -23,6 +24,7 @@ const GameContext = createContext<GameContext | null>(null);
 
 export const GameContextProvider: FC<Props> = ({ children }) => {
   const { gameId } = useParams();
+  const { alertScore } = useScoreAlert();
   const [state, setState] = useState<GameState>();
   const [games, setGames] = useState<GameState[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -70,10 +72,12 @@ export const GameContextProvider: FC<Props> = ({ children }) => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("DATA:", data);
         if (data.state !== undefined) {
           console.log("Updated game state!");
           setState(data.state);
+          if (data.points_scored > 0) {
+            alertScore(data.points_scored);
+          }
         } else {
           console.error("Failed to update game state");
         }
