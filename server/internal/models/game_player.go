@@ -9,10 +9,10 @@ import (
 )
 
 type GamePlayer struct {
-	Id string `json:"id"`
+	Id    string `json:"id"`
 	Alias string `json:"alias"`
-	User User `json:"user"`
-	Score int `json:"score"`
+	User  User   `json:"user"`
+	Score int    `json:"score"`
 	Tiles []Tile `json:"tiles,omitempty"`
 }
 
@@ -21,8 +21,12 @@ func (p *GamePlayer) ScorePoints(points int) {
 }
 
 func (p *GamePlayer) DrawTiles(b *TileBag) {
-	numToDraw := 7 - len(p.Tiles)
-	p.Tiles = append(p.Tiles, b.TakeTiles(numToDraw)...)
+	// Choose smaller amount if less
+	numToDraw := min(7-len(p.Tiles), len(b.Tiles))
+
+	if numToDraw > 0 {
+		p.Tiles = append(p.Tiles, b.TakeTiles(numToDraw)...)
+	}
 }
 
 func (p *GamePlayer) Save() error {
@@ -30,14 +34,14 @@ func (p *GamePlayer) Save() error {
 
 	tilesB, err := json.Marshal(p.Tiles)
 	if err != nil {
-			return err
+		return err
 	}
 
 	_, err = db.Exec(`
 	UPDATE game_players
 	SET score=$1, tiles=$2
 	WHERE id = $3`, p.Score, tilesB, p.Id)
-	
+
 	if err != nil {
 		return err
 	}
@@ -62,7 +66,7 @@ func GetGamePlayersByGameId(gameId string) ([]GamePlayer, error) {
 	}
 
 	defer rows.Close()
-		
+
 	for rows.Next() {
 		player := GamePlayer{
 			User: User{},
@@ -85,7 +89,7 @@ func CreateGamePlayer(gameId string, user User, alias string) (*GamePlayer, erro
 
 	tilesB, err := json.Marshal(player.Tiles)
 	if err != nil {
-			return nil, err
+		return nil, err
 	}
 
 	_, err = db.Exec(`
@@ -93,7 +97,7 @@ func CreateGamePlayer(gameId string, user User, alias string) (*GamePlayer, erro
 		(id, alias, player_id, game_id, score, tiles)
 		VALUES ($1, $2, $3, $4, $5, $6)`,
 		player.Id, player.Alias, player.User.Id, gameId, player.Score, tilesB)
-	
+
 	if err != nil {
 		return nil, err
 	}
@@ -185,11 +189,11 @@ func (p *GamePlayer) getTileById(id string) (*Tile, error) {
 	}
 
 	return nil, fmt.Errorf("invalid tile id: user does not have tile")
-} 
+}
 
 func (p *GamePlayer) GetTilesById(ids []string) ([]Tile, error) {
 	var tiles []Tile
-	
+
 	for _, id := range ids {
 		tile, err := p.getTileById(id)
 		if err != nil {
@@ -199,7 +203,7 @@ func (p *GamePlayer) GetTilesById(ids []string) ([]Tile, error) {
 	}
 
 	return tiles, nil
-} 
+}
 
 func (p *GamePlayer) removeTile(tile Tile) error {
 	for index, playerTile := range p.Tiles {
@@ -230,9 +234,9 @@ func remove(tiles []Tile, index int) []Tile {
 
 func newGamePlayer(user User, alias string) *GamePlayer {
 	return &GamePlayer{
-		Id: uuid.NewString(),
+		Id:    uuid.NewString(),
 		Alias: alias,
-		User: user,
+		User:  user,
 		Score: 0,
 		Tiles: []Tile{},
 	}

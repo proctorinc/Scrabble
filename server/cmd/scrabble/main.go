@@ -11,18 +11,18 @@ import (
 const PORT = 8080
 
 func main() {
-		godotenv.Load(".env")
-		db.Connect()
+	godotenv.Load(".env")
+	db.Connect()
 
-		// Only needs to be done once for DB
-		// err := models.LoadDictionaryWords()
-		// if err != nil {
-		// 	log.Printf("Failed to load dictionary words: %v", err)
-		// }
+	// Only needs to be done once for DB
+	// err := models.LoadDictionaryWords()
+	// if err != nil {
+	// 	log.Printf("Failed to load dictionary words: %v", err)
+	// }
 
-		db := db.GetDB()
-		defer db.Close()
+	db := db.GetDB()
+	defer db.Close()
 
-		router := router.NewRouter()
-		router.Run(fmt.Sprintf("localhost:%d", PORT))
+	router := router.NewRouter()
+	router.Run(fmt.Sprintf("localhost:%d", PORT))
 }

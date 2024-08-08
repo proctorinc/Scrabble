@@ -9,29 +9,29 @@ import (
 )
 
 type GameLog struct {
-	Id string `json:"id"`
-	Player GamePlayer `json:"player"`
-	Action GameAction `json:"action"`
-	PointsScored *int `json:"points_scored,omitempty"`
-	WordPlayed *string `json:"word_played,omitempty"`
-	NumTilesTraded *int `json:"num_tiles_traded,omitempty"`
-	Date time.Time `json:"date"`
+	Id             string     `json:"id"`
+	Player         GamePlayer `json:"player"`
+	Action         GameAction `json:"action"`
+	PointsScored   *int       `json:"points_scored,omitempty"`
+	WordPlayed     *string    `json:"word_played,omitempty"`
+	NumTilesTraded *int       `json:"num_tiles_traded,omitempty"`
+	Date           time.Time  `json:"date"`
 }
 
 type GameAction string
 
 const (
-	JOIN_GAME GameAction = "join_game"
-	PLAY_TILES GameAction = "play-tiles"
+	JOIN_GAME   GameAction = "join_game"
+	PLAY_TILES  GameAction = "play-tiles"
 	TRADE_TILES GameAction = "trade-tiles"
-	SKIP_TURN GameAction = "skip-turn"
-	QUIT_GAME GameAction = "quit-game"
-	WIN_GAME GameAction = "win-game"
+	SKIP_TURN   GameAction = "skip-turn"
+	QUIT_GAME   GameAction = "quit-game"
+	WIN_GAME    GameAction = "win-game"
 )
 
 func CreateJoinGameLog(gameId string, playerId string) error {
 	db := db.GetDB()
-	
+
 	log := GameLog{
 		Id: uuid.NewString(),
 		Player: GamePlayer{
@@ -44,7 +44,7 @@ func CreateJoinGameLog(gameId string, playerId string) error {
 	INSERT INTO game_logs
 	(id, player_id, game_id, action, date)
 	VALUES ($1, $2, $3, $4, $5)`,
-	log.Id, log.Player.Id, gameId, log.Action, time.Now())
+		log.Id, log.Player.Id, gameId, log.Action, time.Now())
 
 	if err != nil {
 		return err
@@ -55,14 +55,14 @@ func CreateJoinGameLog(gameId string, playerId string) error {
 
 func CreatePlayTilesLog(gameId string, playerId string, word string, points int) error {
 	db := db.GetDB()
-	
+
 	log := GameLog{
 		Id: uuid.NewString(),
 		Player: GamePlayer{
 			Id: playerId,
 		},
-		Action: PLAY_TILES,
-		WordPlayed: &word,
+		Action:       PLAY_TILES,
+		WordPlayed:   &word,
 		PointsScored: &points,
 	}
 
@@ -70,7 +70,7 @@ func CreatePlayTilesLog(gameId string, playerId string, word string, points int)
 	INSERT INTO game_logs
 	(id, player_id, game_id, action, points_scored, word_played, date)
 	VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-	log.Id, log.Player.Id, gameId, log.Action, log.PointsScored, log.WordPlayed, time.Now())
+		log.Id, log.Player.Id, gameId, log.Action, log.PointsScored, log.WordPlayed, time.Now())
 
 	if err != nil {
 		return err
@@ -81,13 +81,13 @@ func CreatePlayTilesLog(gameId string, playerId string, word string, points int)
 
 func CreateTradeTilesLog(gameId string, playerId string, numTiles int) error {
 	db := db.GetDB()
-	
+
 	log := GameLog{
 		Id: uuid.NewString(),
 		Player: GamePlayer{
 			Id: playerId,
 		},
-		Action: TRADE_TILES,
+		Action:         TRADE_TILES,
 		NumTilesTraded: &numTiles,
 	}
 
@@ -95,7 +95,7 @@ func CreateTradeTilesLog(gameId string, playerId string, numTiles int) error {
 	INSERT INTO game_logs
 	(id, player_id, game_id, action, num_tiles_traded, date)
 	VALUES ($1, $2, $3, $4, $5, $6)`,
-	log.Id, log.Player.Id, gameId, log.Action, log.NumTilesTraded, time.Now())
+		log.Id, log.Player.Id, gameId, log.Action, log.NumTilesTraded, time.Now())
 
 	if err != nil {
 		return err
@@ -106,7 +106,7 @@ func CreateTradeTilesLog(gameId string, playerId string, numTiles int) error {
 
 func CreateSkipTurnLog(gameId string, playerId string) error {
 	db := db.GetDB()
-	
+
 	log := GameLog{
 		Id: uuid.NewString(),
 		Player: GamePlayer{
@@ -119,7 +119,7 @@ func CreateSkipTurnLog(gameId string, playerId string) error {
 	INSERT INTO game_logs
 	(id, player_id, game_id, action, date)
 	VALUES ($1, $2, $3, $4, $5)`,
-	log.Id, log.Player.Id, gameId, log.Action, time.Now())
+		log.Id, log.Player.Id, gameId, log.Action, time.Now())
 
 	if err != nil {
 		return err
@@ -130,7 +130,7 @@ func CreateSkipTurnLog(gameId string, playerId string) error {
 
 func CreateQuitGameLog(gameId string, playerId string) error {
 	db := db.GetDB()
-	
+
 	log := GameLog{
 		Id: uuid.NewString(),
 		Player: GamePlayer{
@@ -143,7 +143,7 @@ func CreateQuitGameLog(gameId string, playerId string) error {
 	INSERT INTO game_logs
 	(id, player_id, game_id, action, date)
 	VALUES ($1, $2, $3, $4, $5)`,
-	log.Id, log.Player.Id, gameId, log.Action, time.Now())
+		log.Id, log.Player.Id, gameId, log.Action, time.Now())
 
 	if err != nil {
 		return err
@@ -154,7 +154,7 @@ func CreateQuitGameLog(gameId string, playerId string) error {
 
 func CreateWinGameLog(gameId string, playerId string) error {
 	db := db.GetDB()
-	
+
 	log := GameLog{
 		Id: uuid.NewString(),
 		Player: GamePlayer{
@@ -167,7 +167,7 @@ func CreateWinGameLog(gameId string, playerId string) error {
 	INSERT INTO game_logs
 	(id, player_id, game_id, action, date)
 	VALUES ($1, $2, $3, $4, $5)`,
-	log.Id, log.Player.Id, gameId, log.Action, time.Now())
+		log.Id, log.Player.Id, gameId, log.Action, time.Now())
 
 	if err != nil {
 		return err
@@ -195,7 +195,7 @@ func GetGameLogsByGameId(gameId string) ([]*GameLog, error) {
 	}
 
 	defer rows.Close()
-		
+
 	for rows.Next() {
 		log := GameLog{
 			Player: GamePlayer{
@@ -207,7 +207,7 @@ func GetGameLogsByGameId(gameId string) ([]*GameLog, error) {
 
 		if err := rows.Scan(&log.Id, &log.Player.Id, &log.Player.User.Id, &log.Player.User.Username, &log.Player.Alias, &log.Player.Score,
 			&tiles, &log.Action, &log.PointsScored, &log.WordPlayed, &log.NumTilesTraded, &log.Date); err != nil {
-			
+
 			return nil, err
 		}
 

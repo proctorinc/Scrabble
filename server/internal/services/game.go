@@ -5,10 +5,10 @@ import (
 	"proctorinc/scrabble/internal/models"
 )
 
-type GameService struct {}
+type GameService struct{}
 
 func NewGameService() *GameService {
-	 return &GameService{}
+	return &GameService{}
 }
 
 func (s *GameService) GetGameState(userId string, gameId string) (*models.Game, error) {
@@ -21,8 +21,8 @@ func (s *GameService) GetGameState(userId string, gameId string) (*models.Game, 
 	return game, nil
 }
 
-func (s *GameService) GetGameList(userId string) ([]models.Game, error) {
-	games, err := models.GetGamesByUserId(userId)
+func (s *GameService) GetGameList(userId string) ([]models.GameSummary, error) {
+	games, err := models.GetGameSummariesByUserId(userId)
 
 	if err != nil {
 		return nil, err
@@ -73,7 +73,7 @@ func (s *GameService) CreateNewGame(userId string, isLocal bool) (*models.Game, 
 		if err != nil {
 			return nil, err
 		}
-	
+
 		game.AddPlayer(player)
 
 		if err = models.CreateJoinGameLog(game.Id, player.Id); err != nil {
@@ -148,45 +148,45 @@ func (s *GameService) JoinGame(userId string, gameId string) (*models.Game, erro
 		return game.Save()
 
 	}
-	
+
 	return nil, fmt.Errorf("game is no longer accepting players to join")
 }
 
-func (s *GameService) PlayTiles(userId string, gameId string, cells []models.Cell) (*models.Game, error) {
+func (s *GameService) PlayTiles(userId string, gameId string, cells []models.Cell) (int, error) {
 	dictionaryService := NewDictionaryService()
-	
+
 	game, err := models.GetGameById(gameId, userId)
 
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
-	
+
 	tiles, err := getTilesFromCells(cells)
 
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	if !game.PlayerTurn.HasTiles(tiles) {
-		return nil, fmt.Errorf("invalid tiles. User does not have all tiles played")
+		return 0, fmt.Errorf("invalid tiles. User does not have all tiles played")
 	}
 
 	if err := game.Board.PutTilesOnBoard(cells); err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	if err := game.Board.ValidateTilePlacement(); err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	played, err := game.Board.GetPlayedWords()
 
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	if len(played.Words) == 0 {
-		return nil, fmt.Errorf("no valid words were played")
+		return 0, fmt.Errorf("no valid words were played")
 	}
 
 	var wordStrings []string
@@ -196,13 +196,13 @@ func (s *GameService) PlayTiles(userId string, gameId string, cells []models.Cel
 	}
 
 	if err := dictionaryService.ValidateWords(wordStrings); err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	game.Board.ConfirmInPlayTiles()
 
 	if err := game.PlayerTurn.RemoveTiles(tiles); err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	game.PlayerTurn.ScorePoints(played.TotalPoints)
@@ -211,19 +211,23 @@ func (s *GameService) PlayTiles(userId string, gameId string, cells []models.Cel
 	game.PlayerTurn.DrawTiles(&game.TileBag)
 
 	if err = game.PlayerTurn.Save(); err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	// Log player turn
 	if err = models.CreatePlayTilesLog(gameId, game.PlayerTurn.Id, played.Words[0].Word, played.TotalPoints); err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	if err = game.IncrementTurn(); err != nil {
-		return nil, err
+		return 0, err
 	}
 
-	return game.Save()
+	if _, err = game.Save(); err != nil {
+		return 0, err
+	}
+
+	return played.TotalPoints, nil
 }
 
 func (s *GameService) SwapTiles(userId string, gameId string, tileIds []string) (*models.Game, error) {
@@ -271,7 +275,7 @@ func (s *GameService) SkipTurn(userId string, gameId string) (*models.Game, erro
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Log player turn
 	err = models.CreateSkipTurnLog(gameId, game.PlayerTurn.Id)
 
