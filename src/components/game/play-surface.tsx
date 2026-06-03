@@ -54,6 +54,7 @@ export function PlaySurface() {
     onDragEnd,
     onDragStart,
     playedTilesUsePlayerColors,
+    rackPlayer,
     chooseBlankLetter,
     closeBlankPicker,
     startLocalGame,
@@ -77,7 +78,7 @@ export function PlaySurface() {
     game.draft.find((placement) => placement.tile.id === blankTileId)?.tile ??
     null;
   const dragTile =
-    currentPlayer.rack.find((tile) => tile.id === dragTileId) ??
+    rackPlayer.rack.find((tile) => tile.id === dragTileId) ??
     game.draft.find((placement) => placement.tile.id === dragTileId)?.tile ??
     null;
 
@@ -174,19 +175,19 @@ export function PlaySurface() {
       onDragEnd={handleDragEnd}
     >
       <main
-        className="game-shell relative flex min-h-[100dvh] w-full justify-center px-0 py-0 sm:px-4 sm:py-3 lg:px-5 lg:py-5"
+        className="game-shell relative flex min-h-[100dvh] w-full justify-center px-0 py-0 sm:px-4 sm:py-3 lg:h-[100dvh] lg:overflow-hidden lg:px-5 lg:py-5"
         style={
           {
             "--mobile-tray-height": `${mobileTrayHeight}px`,
           } as CSSProperties
         }
       >
-        <div className="flex w-full max-w-[92rem] flex-col gap-4 lg:flex-row lg:items-stretch lg:gap-6 xl:gap-8">
+        <div className="flex w-full max-w-[92rem] flex-col gap-4 lg:min-h-0 lg:flex-row lg:items-stretch lg:gap-6 xl:gap-8">
           <div className="flex min-h-[100dvh] min-w-0 flex-1 flex-col gap-3 pb-[var(--mobile-tray-height,0px)] sm:min-h-[calc(100dvh-1.5rem)] sm:pb-[calc(var(--mobile-tray-height,0px)+1rem)] lg:min-h-0 lg:max-w-[48rem] lg:gap-5 lg:pb-[36px]">
             <MobileTitleBar />
             <div
               ref={mobileBoardFrameRef}
-              className="relative flex min-h-0 flex-1 items-center justify-center sm:block"
+              className="relative flex min-h-0 flex-1 items-center justify-center"
               style={
                 mobileBoardHeight > 0
                   ? ({
@@ -209,7 +210,7 @@ export function PlaySurface() {
           </div>
           <div
             id="right-sidebar"
-            className="hidden min-h-0 w-[22rem] shrink-0 flex-col gap-4 lg:flex xl:w-[24rem] xl:gap-5"
+            className="hidden min-h-0 w-[22rem] shrink-0 flex-col gap-4 overflow-hidden lg:flex xl:w-[24rem] xl:gap-5"
           >
             <TitleBar />
             <SideTabs />
@@ -255,7 +256,7 @@ export function PlaySurface() {
         ) : null}
         <div
           ref={mobileTrayRef}
-          className="fixed inset-x-0 bottom-0 z-10 sm:hidden"
+          className="fixed inset-x-0 bottom-0 z-10 lg:hidden"
         >
           <MobileActionBar />
         </div>

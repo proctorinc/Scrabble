@@ -20,9 +20,9 @@ export function TradeTilesDrawer({
   onClose: () => void;
 }) {
   const {
-    currentPlayer,
     game,
     isInteractionLocked,
+    rackPlayer,
     selectTradeTile,
     clearTradeTiles,
     confirmTrade,
@@ -47,7 +47,7 @@ export function TradeTilesDrawer({
           </DrawerDescription>
         </DrawerHeader>
         <div className="grid grid-cols-7 gap-2 overflow-y-auto pb-1">
-          {currentPlayer.rack.map((tile) => (
+          {rackPlayer.rack.map((tile) => (
             <div key={tile.id} className="aspect-square">
               <Tile
                 tile={tile}

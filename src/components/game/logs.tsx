@@ -8,7 +8,7 @@ export function Logs() {
   const rightPlayerId = game.players[0]?.id;
 
   return (
-    <div className="flex flex-col justify-end gap-4 p-3 pb-16 text-sm">
+    <div className="flex h-full min-h-0 flex-col justify-end gap-4 overflow-y-auto p-3 pb-16 text-sm">
       {game.logs.map((log) => {
         const isRightPlayer = log.playerId === rightPlayerId;
         const isLeftPlayer = log.playerId === leftPlayerId;

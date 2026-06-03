@@ -18,12 +18,12 @@ export function SideTabs() {
   } = useGame();
 
   return (
-    <div className="flex min-h-0 w-full flex-1">
-      <div className="paper-panel flex min-h-0 w-full flex-1 flex-col rounded-[30px] border border-panel p-3">
+    <div className="flex min-h-0 w-full flex-1 overflow-hidden">
+      <div className="paper-panel flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-[30px] border border-panel p-3">
         <Tabs
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as typeof activeTab)}
-          className="flex min-h-0 h-full flex-1 flex-col"
+          className="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
         >
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="log">
@@ -40,7 +40,7 @@ export function SideTabs() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="log" className="min-h-0 flex-1 overflow-y-auto">
+          <TabsContent value="log" className="min-h-0 flex-1 overflow-hidden">
             <Logs />
           </TabsContent>
 

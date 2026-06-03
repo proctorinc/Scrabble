@@ -14,12 +14,27 @@ import { Button } from "@/components/ui/button";
 import { useGame } from "@/context/game-context";
 
 export function ActionBar() {
-  const { currentPlayer, game, dictionary, isInteractionLocked, isCpuTurnInProgress, validationMessage, submitCurrentMove, passCurrentTurn, shuffleCurrentRack, returnTiles } =
-    useGame();
+  const {
+    game,
+    dictionary,
+    isInteractionLocked,
+    isCpuTurnInProgress,
+    rackPlayer,
+    validationMessage,
+    submitCurrentMove,
+    passCurrentTurn,
+    shuffleCurrentRack,
+    returnTiles,
+  } = useGame();
   const [tradeOpen, setTradeOpen] = useState(false);
   const [skipConfirmOpen, setSkipConfirmOpen] = useState(false);
 
-  const canPlay = dictionary.ready && !isInteractionLocked && game.status === "active" && game.draft.length > 0 && !validationMessage;
+  const canPlay =
+    dictionary.ready &&
+    !isInteractionLocked &&
+    game.status === "active" &&
+    game.draft.length > 0 &&
+    !validationMessage;
   const canReturnTiles = !isInteractionLocked && game.draft.length > 0;
   const trayControls = [
     {
@@ -36,7 +51,7 @@ export function ActionBar() {
       disabled: isInteractionLocked,
       onClick: () => setTradeOpen(true),
     },
-    ...(currentPlayer.rack.length === 7
+    ...(rackPlayer.rack.length === 7
       ? [
           {
             key: "shuffle",
@@ -57,11 +72,9 @@ export function ActionBar() {
   ];
 
   return (
-    <div className="hidden w-full flex-col items-center justify-center gap-3 sm:flex lg:gap-5">
+    <div className="hidden w-full flex-col items-center justify-center gap-3 lg:flex lg:gap-5">
       <div className="hidden w-full max-w-5xl items-center gap-3 sm:flex">
-        <div className="paper-panel flex h-fit flex-1 items-center justify-center rounded-[26px] border border-panel p-2.5">
-          <Rack />
-        </div>
+        <Rack />
         <div className="flex items-center gap-2">
           {trayControls.map((control) => (
             <Button

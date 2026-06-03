@@ -67,13 +67,18 @@ export function MobileActionBar({ className }: { className?: string }) {
   ];
 
   return (
-    <div id="bottom-bar" className={cn("flex sm:hidden", className)}>
+    <div
+      id="bottom-bar"
+      className={cn("flex justify-center lg:hidden", className)}
+    >
       <div
         id="mobile-actionbar"
-        className="flex h-full w-full flex-col bg-transparent sm:rounded-[28px] sm:border sm:border-panel sm:bg-panel sm:shadow-[var(--shadow-brutal-md)]"
+        className="flex justi h-full w-full max-w-xl flex-col bg-transparent"
       >
-        <Rack compact />
-        <div className="flex w-full flex-grow items-start px-4 pb-4">
+        <div className="w-full flex justify-center">
+          <Rack compact />
+        </div>
+        <div className="flex w-full items-start px-4 pb-4">
           <div className="flex w-full items-center gap-2">
             <div className="grid flex-1 grid-cols-2">
               {trayControls.slice(0, 2).map((control) => (

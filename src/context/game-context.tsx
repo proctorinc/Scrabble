@@ -119,6 +119,7 @@ type GameContextValue = {
   onDragEnd: (event: DragEndEvent) => void;
   tileCounts: Record<string, number>;
   currentPlayer: GameState["players"][number];
+  rackPlayer: GameState["players"][number];
   opponent: GameState["players"][number];
   scoreCelebration: TurnBurst | null;
   playedTilesUsePlayerColors: boolean;
@@ -293,6 +294,20 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const board = useMemo(() => getVisibleBoard(game), [game]);
   const hasSavedGame = isOngoingGame(game.status);
   const currentPlayer = game.players[game.currentPlayerIndex];
+  const rackPlayer = useMemo(() => {
+    const humanPlayers = game.players.filter(
+      (player) => player.kind === "human-local",
+    );
+    const hasComputerOpponent = game.players.some(
+      (player) => player.kind === "computer",
+    );
+
+    if (humanPlayers.length === 1 && hasComputerOpponent) {
+      return humanPlayers[0];
+    }
+
+    return currentPlayer;
+  }, [currentPlayer, game.players]);
   const opponent =
     game.players[(game.currentPlayerIndex + 1) % game.players.length];
   const tileCounts = useMemo(() => getTileCounts(game.bag), [game.bag]);
@@ -796,6 +811,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     onDragEnd,
     tileCounts,
     currentPlayer,
+    rackPlayer,
     opponent,
     scoreCelebration,
     playedTilesUsePlayerColors,

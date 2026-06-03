@@ -67,6 +67,10 @@ function makeGameContext(overrides: Partial<ReturnType<typeof useGame>> = {}) {
       id: "player-1",
       rack: Array.from({ length: 7 }, (_, index) => makeTile(`rack-${index}`)),
     },
+    rackPlayer: {
+      id: "player-1",
+      rack: Array.from({ length: 7 }, (_, index) => makeTile(`rack-${index}`)),
+    },
     dictionary: { ready: true, list: [], words: new Set<string>() },
     draftValidation: null,
     getPlayerTileTint: vi.fn(() => "neutral"),

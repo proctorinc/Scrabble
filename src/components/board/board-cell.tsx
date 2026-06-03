@@ -11,6 +11,7 @@ import {
 } from "@/types/game";
 import { Tile } from "@/components/player/tile";
 import { useGame } from "@/context/game-context";
+import { cn } from "@/lib/utils";
 
 const boardCellVariants = cva(
   "relative flex aspect-square w-full items-center justify-center overflow-visible rounded-[10px] border-2 border-board-strong/70 text-[0.7rem] font-bold shadow-[var(--shadow-board-cell)]",
@@ -49,15 +50,6 @@ const markerButtonVariants = cva(
     },
   },
 );
-
-const markerMessageVariants = cva("rounded-lg px-2 py-1", {
-  variants: {
-    tone: {
-      error: "bg-error-soft text-error-foreground",
-      success: "bg-success-soft text-success-foreground",
-    },
-  },
-});
 
 export function BoardCell({
   cell,
@@ -202,11 +194,22 @@ export function BoardCell({
               {markerLabel}
             </button>
             {isMarkerOpen ? (
-              <div className="absolute right-0 top-0 z-30 flex w-40 flex-col gap-1 translate-x-[18%] -translate-y-[calc(100%+0.35rem)] rounded-xl border bg-popover-soft p-2 text-left text-[0.6rem] font-medium text-ink shadow-[var(--shadow-brutal-sm)] sm:w-44 sm:text-[0.65rem]">
+              <div
+                className={cn(
+                  "absolute right-0 top-0 z-30 flex w-40 flex-col gap-1 translate-x-[18%] -translate-y-[calc(100%+0.35rem)] rounded-xl border p-2 text-left text-[0.6rem] font-medium shadow-[var(--shadow-brutal-sm)] sm:w-44 sm:text-[0.65rem]",
+                  markerTone === "error"
+                    ? "border-error-strong bg-error"
+                    : "border-success-strong bg-success",
+                )}
+              >
                 {markers.map((marker) => (
                   <div
                     key={marker.id}
-                    className={markerMessageVariants({ tone: marker.tone })}
+                    className={
+                      marker.tone === "error"
+                        ? "text-error-foreground"
+                        : "text-success-foreground"
+                    }
                   >
                     {marker.message}
                   </div>

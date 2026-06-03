@@ -20,9 +20,9 @@ export function TradeTilesModal({
   onClose: () => void;
 }) {
   const {
-    currentPlayer,
     game,
     isInteractionLocked,
+    rackPlayer,
     selectTradeTile,
     clearTradeTiles,
     confirmTrade,
@@ -47,7 +47,7 @@ export function TradeTilesModal({
           </DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-7 gap-2">
-          {currentPlayer.rack.map((tile) => (
+          {rackPlayer.rack.map((tile) => (
             <div key={tile.id} className="aspect-square">
               <Tile
                 tile={tile}

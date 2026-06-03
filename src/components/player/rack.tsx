@@ -13,12 +13,12 @@ function RackSlot({
   compact?: boolean;
 }) {
   const {
-    currentPlayer,
     isInteractionLocked,
+    rackPlayer,
     shuffledRackTileIds,
     shuffledRackAnimationSequence,
   } = useGame();
-  const tile = currentPlayer.rack[index] ?? null;
+  const tile = rackPlayer.rack[index] ?? null;
   const isShufflingTile = tile ? shuffledRackTileIds.includes(tile.id) : false;
   const { setNodeRef, isOver } = useDroppable({
     id: `rack-${index}`,
@@ -66,7 +66,7 @@ export function Rack({ compact = false }: { compact?: boolean }) {
   return (
     <div
       className={cn(
-        "grid w-full grid-cols-7 justify-center gap-1",
+        "grid w-full grid-cols-7 justify-center gap-1 max-w-sm",
         compact
           ? "px-2 py-4"
           : "overflow-clip rounded-[24px] border-2 border-border bg-rack p-2 shadow-[var(--shadow-brutal-md)]",

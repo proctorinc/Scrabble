@@ -50,7 +50,7 @@ export function MobileTitleBar() {
       id="mobile-top-bar"
       className="flex w-full flex-col items-center justify-end lg:hidden"
     >
-      <div className="flex w-full flex-col gap-4 bg-transparent px-4 py-4 sm:max-w-xl sm:rounded-[28px] sm:border sm:border-panel sm:bg-panel sm:px-4 sm:py-3 sm:shadow-[var(--shadow-brutal-md)]">
+      <div className="flex w-full flex-col gap-4 bg-transparent px-4 py-4 sm:max-w-xl sm:rounded-[28px] sm:border sm:border-panel sm:bg-card sm:px-4 sm:py-3 sm:shadow-[var(--shadow-brutal-md)]">
         <div className="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-3 sm:gap-3">
           <div className="flex min-w-0 flex-col items-start gap-1.5">
             <span className="px-2 text-3xl leading-none font-semibold text-display">

@@ -35,7 +35,13 @@ vi.mock("@/lib/scrabble/cpu", async () => {
 });
 
 function CpuTurnHarness() {
-  const { dictionary, isCpuTurnInProgress, startLocalGame, game } = useGame();
+  const {
+    dictionary,
+    isCpuTurnInProgress,
+    startLocalGame,
+    game,
+    rackPlayer,
+  } = useGame();
   const startedRef = useRef(false);
 
   useEffect(() => {
@@ -57,6 +63,7 @@ function CpuTurnHarness() {
       <div>{dictionary.ready ? "dictionary-ready" : "dictionary-loading"}</div>
       <div>{isCpuTurnInProgress ? "cpu-thinking" : "cpu-idle"}</div>
       <div>{`turn-${game.turn}`}</div>
+      <div>{`rack-${rackPlayer.id}`}</div>
     </div>
   );
 }
@@ -243,6 +250,7 @@ describe("game context CPU flow", () => {
     expect(screen.getByText("dictionary-ready")).toBeInTheDocument();
     expect(screen.getByText("cpu-thinking")).toBeInTheDocument();
     expect(screen.getByText("turn-1")).toBeInTheDocument();
+    expect(screen.getByText("rack-player-2")).toBeInTheDocument();
 
     await act(async () => {
       vi.advanceTimersByTime(850);
@@ -251,6 +259,7 @@ describe("game context CPU flow", () => {
     expect(resolveCpuTurn).toHaveBeenCalledTimes(1);
     expect(screen.getByText("cpu-idle")).toBeInTheDocument();
     expect(screen.getByText("turn-2")).toBeInTheDocument();
+    expect(screen.getByText("rack-player-2")).toBeInTheDocument();
   });
 
   it("holds a scoring move in the score-burst phase before advancing turns", async () => {
