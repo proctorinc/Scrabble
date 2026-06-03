@@ -1,0 +1,540 @@
+@import "tailwindcss";
+
+@theme inline {
+    --font-sans: var(--font-sans-stack);
+    --font-heading: var(--font-heading-stack);
+    --font-mono: var(--font-mono-stack);
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --color-display: var(--display);
+    --color-display-strong: var(--display-strong);
+    --color-emphasis: var(--emphasis);
+    --color-hero: var(--hero);
+    --color-tile: var(--tile);
+    --color-button-primary: var(--button-primary-foreground);
+    --color-button-secondary: var(--button-secondary-foreground);
+    --color-board-base: var(--board-base);
+    --color-board-dl: var(--board-dl);
+    --color-board-dw: var(--board-dw);
+    --color-board-tl: var(--board-tl);
+    --color-board-tw: var(--board-tw);
+    --color-player-blue: var(--player-blue);
+    --color-player-rose: var(--player-rose);
+    --color-player-gold: var(--player-gold);
+    --color-badge-default: var(--badge-default);
+    --color-ink: var(--ink);
+    --color-surface-chip: var(--surface-chip);
+    --color-surface-tabs: var(--surface-tabs);
+    --color-surface-soft: var(--surface-soft);
+    --color-surface-soft-strong: var(--surface-soft-strong);
+    --color-surface-soft-muted: var(--surface-soft-muted);
+    --color-surface-hover: var(--surface-hover);
+    --color-surface-overlay: var(--surface-overlay);
+    --color-surface-scrim: var(--surface-scrim);
+    --color-surface-hero: var(--surface-hero);
+    --color-badge-default-surface: var(--badge-default-surface);
+    --color-panel: var(--panel);
+    --color-panel-subtle: var(--panel-subtle);
+    --color-panel-faint: var(--panel-faint);
+    --color-panel-dashed: var(--panel-dashed);
+    --color-board-accent: var(--board-accent);
+    --color-board-strong: var(--board-strong);
+    --color-board-soft: var(--board-soft);
+    --color-tile-accent: var(--tile-accent);
+    --color-hero-accent: var(--hero-accent);
+    --color-badge-default-accent: var(--badge-default-accent);
+    --color-badge-blue-accent: var(--badge-blue-accent);
+    --color-badge-rose-accent: var(--badge-rose-accent);
+    --color-badge-gold-accent: var(--badge-gold-accent);
+    --color-success: var(--success);
+    --color-success-strong: var(--success-strong);
+    --color-success-foreground: var(--success-foreground);
+    --color-success-soft: var(--success-soft);
+    --color-error: var(--error);
+    --color-error-strong: var(--error-strong);
+    --color-error-foreground: var(--error-foreground);
+    --color-error-soft: var(--error-soft);
+    --color-last-played: var(--last-played);
+    --color-popover-soft: var(--popover-soft);
+
+    --radius-sm: calc(var(--radius) * 0.7);
+    --radius-md: calc(var(--radius) * 0.9);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.15);
+    --radius-2xl: calc(var(--radius) * 1.45);
+    --radius-3xl: calc(var(--radius) * 1.8);
+}
+
+:root {
+    color-scheme: light;
+
+    --font-sans-stack: "Avenir Next", "Trebuchet MS", "Segoe UI", sans-serif;
+    --font-heading-stack: "Cooper Std", "Georgia", serif;
+    --font-mono-stack:
+        "SFMono-Regular", "SF Mono", "Menlo", "Consolas", monospace;
+
+    --background: #e7cfaf;
+    --foreground: #4c3427;
+    --card: #f8ebd4;
+    --card-foreground: #4c3427;
+    --popover: #f9eedb;
+    --popover-foreground: #4c3427;
+    --primary: #ca7b52;
+    --primary-foreground: #fff8ef;
+    --secondary: #efd9bb;
+    --secondary-foreground: #6c4532;
+    --muted: #dcc3a0;
+    --muted-foreground: #8c6b58;
+    --accent: #fff7eb;
+    --accent-foreground: #7c5844;
+    --destructive: #a35a47;
+    --border: #7e543e;
+    --input: #fbf1e0;
+    --ring: rgba(202, 123, 82, 0.42);
+    --radius: 0.95rem;
+
+    --display: #6f4734;
+    --display-strong: #6e432f;
+    --emphasis: #7c5844;
+    --hero: #9a6648;
+
+    --surface-chip: rgba(255, 247, 235, 0.88);
+    --surface-tabs: rgba(255, 248, 239, 0.85);
+    --surface-soft: rgba(255, 251, 245, 0.82);
+    --surface-soft-strong: rgba(255, 251, 245, 0.76);
+    --surface-soft-muted: rgba(255, 251, 245, 0.55);
+    --surface-hover: rgba(140, 107, 88, 0.12);
+    --surface-overlay: rgba(255, 248, 240, 0.82);
+    --surface-scrim: rgba(92, 62, 45, 0.38);
+    --surface-hero: rgba(255, 248, 239, 0.86);
+    --badge-default-surface: rgba(255, 244, 229, 0.92);
+
+    --panel: rgba(150, 103, 72, 0.16);
+    --panel-subtle: rgba(150, 103, 72, 0.14);
+    --panel-faint: rgba(150, 103, 72, 0.12);
+    --panel-dashed: rgba(150, 103, 72, 0.18);
+    --board-accent: rgba(255, 240, 220, 0.42);
+    --board-strong: rgba(126, 84, 62, 0.45);
+    --board-soft: rgba(255, 244, 227, 0.72);
+    --tile-accent: #eed9a8;
+    --hero-accent: rgba(160, 109, 77, 0.2);
+    --badge-default-accent: rgba(194, 118, 78, 0.18);
+    --badge-blue-accent: rgba(90, 127, 159, 0.18);
+    --badge-rose-accent: rgba(173, 98, 88, 0.18);
+    --badge-gold-accent: rgba(181, 139, 74, 0.18);
+
+    --app-glow: rgba(255, 245, 228, 0.22);
+    --grid-line: rgba(126, 84, 62, 0.08);
+    --selection: rgba(236, 181, 109, 0.45);
+    --ring-strong: #7a5339;
+    --tile: #694c29;
+    --button-primary-foreground: #fff8ef;
+    --button-secondary-foreground: #6c4532;
+    --board-base: #8c6a53;
+    --board-dl: #2b4d61;
+    --board-dw: #743a31;
+    --board-tl: #5a4368;
+    --board-tw: #7b5724;
+    --player-blue: #254b60;
+    --player-rose: #6b332c;
+    --player-gold: #77531f;
+    --badge-default: #8f5a3f;
+    --ink: #4c3427;
+    --popover-soft: rgba(255, 249, 239, 0.98);
+    --success: #46a877;
+    --success-strong: #2b7d5a;
+    --success-foreground: #235841;
+    --success-soft: rgba(70, 168, 119, 0.12);
+    --error: #d85d51;
+    --error-strong: #9f332b;
+    --error-foreground: #7c2f29;
+    --error-soft: rgba(216, 93, 81, 0.12);
+    --last-played: #d8a93f;
+
+    --gradient-panel: linear-gradient(180deg, #fff1dc, #f5e1c1);
+    --gradient-board: linear-gradient(180deg, #ebcdae, #d2b291);
+    --gradient-rack: linear-gradient(180deg, #f1d5af, #ddb17f);
+    --gradient-rack-slot: linear-gradient(180deg, #f5e8d2, #ead5b8);
+    --gradient-tile: linear-gradient(180deg, #f9e5b3, #f3d384 52%, #efcb76);
+    --gradient-board-cell: linear-gradient(180deg, #f7ecd8, #ead7ba);
+    --gradient-board-cell-dl: linear-gradient(180deg, #c3dce8, #95bdd0);
+    --gradient-board-cell-dw: linear-gradient(180deg, #efc5b3, #dd9b88);
+    --gradient-board-cell-tl: linear-gradient(180deg, #d3c4de, #b29cc6);
+    --gradient-board-cell-tw: linear-gradient(180deg, #efd79c, #dbb868);
+    --gradient-button-primary: linear-gradient(180deg, #d88b61, #bf6c47);
+    --gradient-button-secondary: linear-gradient(180deg, #fff7ea, #ebd4b0);
+    --gradient-button-outline: linear-gradient(180deg, #fff8ec, #f1ddbc);
+    --gradient-tabs-active: linear-gradient(180deg, #fff7ea, #ecd6b3);
+    --gradient-badge-blue: linear-gradient(180deg, #b7d7e8, #90bbd3);
+    --gradient-badge-rose: linear-gradient(180deg, #efc2b4, #de9e8e);
+    --gradient-badge-gold: linear-gradient(180deg, #f2d8a3, #ddba74);
+    --gradient-log-blue: linear-gradient(180deg, #b7d7e8, #90bbd3);
+    --gradient-log-rose: linear-gradient(180deg, #e9b29f, #d88e79);
+    --gradient-count-chip: linear-gradient(180deg, #fff9f0, #f3e3cf);
+    --gradient-tile-blue: linear-gradient(
+        180deg,
+        #dbeaf2,
+        #b7d7e8 55%,
+        #8fb4ca
+    );
+    --gradient-tile-rose: linear-gradient(
+        180deg,
+        #f2d9cf,
+        #e9b29f 55%,
+        #d58c76
+    );
+    --gradient-tile-gold: linear-gradient(
+        180deg,
+        #f6e4bf,
+        #efcf8e 55%,
+        #ddb368
+    );
+
+    --shadow-brutal-sm: 3px 3px 0 0 var(--border);
+    --shadow-brutal-md: 5px 5px 0 0 var(--border);
+    --shadow-brutal-lg: 8px 8px 0 0 var(--border);
+    --shadow-inset: inset 0 2px 0 rgba(255, 255, 255, 0.42);
+    --shadow-inset-soft: inset 0 1px 0 rgba(255, 255, 255, 0.82);
+    --shadow-inset-strong: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    --shadow-badge: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    --shadow-board-cell:
+        inset 0 3px 4px rgba(105, 69, 47, 0.26),
+        inset 0 -2px 3px rgba(255, 248, 235, 0.42);
+    --shadow-tile: var(--shadow-inset), var(--shadow-brutal-sm);
+}
+
+@layer base {
+    * {
+        @apply border-border outline-ring/50;
+    }
+
+    html {
+        @apply bg-background font-sans;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+        margin: 0;
+        min-height: 100vh;
+        background:
+            linear-gradient(180deg, var(--app-glow), rgba(0, 0, 0, 0)),
+            var(--background);
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+        font-family: var(--font-heading);
+        letter-spacing: -0.02em;
+    }
+
+    button {
+        cursor: pointer;
+    }
+
+    button:disabled {
+        cursor: not-allowed;
+    }
+
+    ::selection {
+        background: var(--selection);
+    }
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    opacity: 0.38;
+    background-image:
+        linear-gradient(var(--grid-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none;
+}
+
+.game-shell {
+    position: relative;
+}
+
+.paper-panel {
+    background-image: var(--gradient-panel);
+    box-shadow: var(--shadow-brutal-md);
+}
+
+.score-burst-shell {
+    animation: score-burst-shell 1600ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+
+.score-burst-card {
+    background:
+        radial-gradient(
+            circle at top,
+            rgba(255, 252, 244, 0.98),
+            rgba(248, 231, 204, 0.94) 48%,
+            rgba(240, 215, 175, 0.92)
+        ),
+        var(--gradient-panel);
+    box-shadow:
+        0 0 0 10px rgba(255, 245, 228, 0.2),
+        0 18px 38px rgba(92, 62, 45, 0.18),
+        var(--shadow-brutal-lg);
+    animation: score-burst-card 1600ms cubic-bezier(0.18, 0.9, 0.2, 1) both;
+}
+
+.score-burst-ring {
+    border: 3px solid rgba(255, 248, 235, 0.7);
+    animation: score-burst-ring 1000ms ease-out both;
+}
+
+.score-burst-ring-delay {
+    animation-delay: 140ms;
+}
+
+.score-burst-particle {
+    top: 50%;
+    left: 50%;
+    box-shadow: 0 0 0 3px rgba(255, 248, 239, 0.22);
+    animation: score-burst-particle 900ms cubic-bezier(0.12, 0.8, 0.22, 1) both;
+    animation-delay: var(--burst-delay);
+}
+
+.tile-play-in-jump {
+    animation: tile-play-in-jump 620ms cubic-bezier(0.16, 0.92, 0.24, 1) both;
+    animation-delay: var(--tile-anim-delay, 0ms);
+    will-change: transform;
+}
+
+.tile-shuffle-jump {
+    animation: tile-shuffle-jump 520ms cubic-bezier(0.2, 0.82, 0.28, 1) both;
+    animation-delay: var(--tile-anim-delay, 0ms);
+    will-change: transform;
+}
+
+.tile-last-played {
+    border-color: rgba(255, 252, 244, 0.96);
+    background-image: linear-gradient(180deg, #fff7df, #f9e8bc 54%, #f3d78e);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.95),
+        0 0 0 1px rgba(255, 252, 244, 0.72);
+}
+
+@keyframes score-burst-shell {
+    0% {
+        opacity: 0;
+        transform: translateY(18px) scale(0.92);
+    }
+
+    12% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    84% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-12px) scale(1.04);
+    }
+}
+
+@keyframes score-burst-card {
+    0% {
+        transform: scale(0.5) rotate(-7deg);
+    }
+
+    32% {
+        transform: scale(1.08) rotate(4deg);
+    }
+
+    52% {
+        transform: scale(0.98) rotate(-2deg);
+    }
+
+    100% {
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+@keyframes score-burst-ring {
+    0% {
+        opacity: 0.9;
+        transform: scale(0.3);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1.28);
+    }
+}
+
+@keyframes score-burst-particle {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(var(--burst-angle))
+            translateX(0) scale(0.4);
+    }
+
+    18% {
+        opacity: 1;
+    }
+
+    78% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(var(--burst-angle))
+            translateX(var(--burst-distance)) scale(1);
+    }
+}
+
+@keyframes tile-play-in-jump {
+    0% {
+        transform: translateX(-30px) translateY(0) scale(0.92) rotate(-4deg);
+    }
+
+    38% {
+        transform: translateX(6px) translateY(-16px) scale(1.06) rotate(3deg);
+    }
+
+    68% {
+        transform: translateX(-2px) translateY(-4px) scale(0.99) rotate(-1deg);
+    }
+
+    100% {
+        transform: translateX(0) translateY(0) scale(1) rotate(0deg);
+    }
+}
+
+@keyframes tile-shuffle-jump {
+    0% {
+        transform: translateX(-10px) translateY(0) scale(0.985) rotate(-4deg);
+    }
+
+    55% {
+        transform: translateX(8px) translateY(-10px) scale(1.03) rotate(4deg);
+    }
+
+    100% {
+        transform: translateX(0) translateY(0) scale(1) rotate(0deg);
+    }
+}
+
+@layer utilities {
+    .bg-panel {
+        background-image: var(--gradient-panel);
+    }
+
+    .bg-board {
+        background-image: var(--gradient-board);
+    }
+
+    .bg-rack {
+        background-image: var(--gradient-rack);
+    }
+
+    .bg-rack-slot {
+        background-image: var(--gradient-rack-slot);
+    }
+
+    .bg-tile {
+        background-image: var(--gradient-tile);
+    }
+
+    .bg-board-cell {
+        background-image: var(--gradient-board-cell);
+    }
+
+    .bg-board-cell-dl {
+        background-image: var(--gradient-board-cell-dl);
+    }
+
+    .bg-board-cell-dw {
+        background-image: var(--gradient-board-cell-dw);
+    }
+
+    .bg-board-cell-tl {
+        background-image: var(--gradient-board-cell-tl);
+    }
+
+    .bg-board-cell-tw {
+        background-image: var(--gradient-board-cell-tw);
+    }
+
+    .bg-button-primary {
+        background-image: var(--gradient-button-primary);
+    }
+
+    .bg-button-secondary {
+        background-image: var(--gradient-button-secondary);
+    }
+
+    .bg-button-outline {
+        background-image: var(--gradient-button-outline);
+    }
+
+    .bg-tabs-active {
+        background-image: var(--gradient-tabs-active);
+    }
+
+    .bg-badge-blue {
+        background-image: var(--gradient-badge-blue);
+    }
+
+    .bg-badge-rose {
+        background-image: var(--gradient-badge-rose);
+    }
+
+    .bg-badge-gold {
+        background-image: var(--gradient-badge-gold);
+    }
+
+    .bg-log-blue {
+        background-image: var(--gradient-log-blue);
+    }
+
+    .bg-log-rose {
+        background-image: var(--gradient-log-rose);
+    }
+
+    .bg-count-chip {
+        background-image: var(--gradient-count-chip);
+    }
+
+    .bg-tile-blue {
+        background-image: var(--gradient-tile-blue);
+    }
+
+    .bg-tile-rose {
+        background-image: var(--gradient-tile-rose);
+    }
+
+    .bg-tile-gold {
+        background-image: var(--gradient-tile-gold);
+    }
+}
